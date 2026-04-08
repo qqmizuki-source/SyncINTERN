@@ -210,12 +210,8 @@
         </div>
     </main>
 
-    <!-- JavaScript Logic (Firebase + App Logic) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <!-- JavaScript Logic (Local Storage + App Logic) -->
+    <script>
         // --- State ---
         let activeTab = 'dashboard';
         let isFilesMenuOpen = false;
@@ -224,7 +220,7 @@
         const year = 2026;
         let selectedDate = null;
 
-        // Empty arrays starting fresh (These will populate from cloud storage)
+        // Arrays to hold your data
         let logs = [];
         let todos = [];
         let fileSystem = {
@@ -236,9 +232,28 @@
         let editingLogId = null;
         let linkFormActive = { category: '', folderId: '' };
 
-        // --- Firebase Globals ---
-        let db, auth, userId, appId;
-        let isDataLoaded = false;
+        // --- Local Storage Functions (Saves to your browser) ---
+        function loadData() {
+            const savedData = localStorage.getItem('internflowData');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                logs = parsed.logs || [];
+                todos = parsed.todos || [];
+                if (parsed.fileSystem) {
+                    fileSystem = parsed.fileSystem;
+                }
+                console.log("✅ Data successfully loaded from LocalStorage!");
+            } else {
+                console.log("ℹ️ No previous data found. Starting fresh.");
+            }
+            updateUI();
+        }
+
+        function saveData() {
+            const dataToSave = { logs, todos, fileSystem };
+            localStorage.setItem('internflowData', JSON.stringify(dataToSave));
+            console.log("💾 Data saved successfully.");
+        }
 
         // --- Core Functions ---
         function calculateDuration(start, end) {
@@ -252,62 +267,6 @@
 
         function getLogTotalHours(log) {
             return log.tasks.reduce((sum, task) => sum + calculateDuration(task.startTime, task.endTime), 0);
-        }
-
-        // --- Firebase Integration ---
-        try {
-            if (typeof __firebase_config !== 'undefined') {
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-                const initAuth = async () => {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                };
-                initAuth();
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        loadData();
-                    }
-                });
-            } else {
-                updateUI(); // Fallback mode
-            }
-        } catch(e) {
-            console.warn("Firebase not initialized.", e);
-            updateUI();
-        }
-
-        function loadData() {
-            if (!userId || !db) return;
-            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'internflowData', 'state');
-            onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    logs = data.logs || [];
-                    todos = data.todos || [];
-                    fileSystem = data.fileSystem || fileSystem;
-                }
-                isDataLoaded = true;
-                updateUI();
-            }, (error) => {
-                console.error("Error loading data:", error);
-                updateUI();
-            });
-        }
-
-        function saveData() {
-            if (!userId || !db) return;
-            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'internflowData', 'state');
-            setDoc(docRef, { logs, todos, fileSystem }).catch(error => console.error("Error saving data:", error));
         }
 
         // --- Render Functions ---
@@ -686,8 +645,10 @@
 
         window.deleteItem = (category, id) => { fileSystem[category].items = fileSystem[category].items.filter(i => i.id !== id); saveData(); updateUI(); };
 
-        // Initial render fallback (will be overwritten when data loads)
-        window.onload = () => { updateUI(); };
+        // REMOVED THE DANGEROUS BEFOREUNLOAD EVENT HERE
+
+        // Load data on start immediately without waiting for window.onload
+        loadData();
     </script>
 </body>
 </html>
