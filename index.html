@@ -174,14 +174,6 @@
         .theme-yellow .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
         .theme-yellow .text-red-500 { color: #ef4444; }
         .theme-yellow .hover\:text-red-500:hover { color: #ef4444; }
-        
-        /* Notification Styles */
-        #notification {
-            transition: transform 0.3s ease-in-out;
-        }
-        #notification.translate-x-full {
-            transform: translateX(100%);
-        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 overflow-hidden theme-white">
@@ -564,13 +556,6 @@
                         </div>
                     </div>
 
-                    <!-- Notification Toast -->
-                    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i>
-                            <span id="notification-text">Changes saved successfully!</span>
-                        </div>
-                    </div>
                 </section>
 
             </div>
@@ -1366,32 +1351,11 @@
         };
 
         function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const notificationText = document.getElementById('notification-text');
-            const icon = notification.querySelector('i');
-            
-            notificationText.textContent = message;
-            
             if (type === 'error') {
-                notification.classList.remove('bg-green-500');
-                notification.classList.add('bg-red-500');
-                icon.setAttribute('data-lucide', 'x-circle');
+                alert('Error: ' + message);
             } else {
-                notification.classList.remove('bg-red-500');
-                notification.classList.add('bg-green-500');
-                icon.setAttribute('data-lucide', 'check-circle');
+                alert('Success: ' + message);
             }
-            
-            // Re-render icons
-            lucide.createIcons();
-            
-            // Show notification
-            notification.classList.remove('translate-x-full');
-            
-            // Hide after 3 seconds
-            setTimeout(() => {
-                notification.classList.add('translate-x-full');
-            }, 3000);
         }
 
         window.setTheme = async (theme) => {
