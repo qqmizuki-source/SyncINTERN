@@ -54,17 +54,73 @@
                     <label class="block text-xs font-bold text-slate-600 mb-1">Email</label>
                     <input type="email" id="auth-email" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
-                <div>
+                <div class="relative">
                     <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                    <input type="password" id="auth-password" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="password" id="auth-password" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none pr-10">
+                    <button type="button" onclick="togglePasswordVisibility('auth-password')" class="absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-400 hover:text-slate-600">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" id="btn-login" onclick="handleLogin()" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl hover:bg-indigo-700 font-bold transition-colors shadow-sm disabled:opacity-50">
                         Login
                     </button>
-                    <button type="button" id="btn-register" onclick="handleRegister()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl hover:bg-slate-200 font-bold transition-colors shadow-sm border border-slate-200 disabled:opacity-50">
+                    <button type="button" id="btn-show-register" onclick="showRegisterScreen()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl hover:bg-slate-200 font-bold transition-colors shadow-sm border border-slate-200">
                         Register
                     </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- === REGISTER SCREEN === -->
+    <div id="register-screen" class="hidden fixed inset-0 bg-slate-100 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+            <div class="flex justify-center mb-6 text-indigo-600">
+                <i data-lucide="user-plus" class="w-12 h-12"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900 mb-2 text-center">Create Your Account</h1>
+            <p class="text-sm text-slate-500 text-center mb-6">Join InternFlow to start tracking your progress.</p>
+            
+            <div id="register-error" class="hidden bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 border border-red-100"></div>
+            
+            <form id="register-form" class="space-y-4" onsubmit="event.preventDefault(); handleCreateAccount();">
+                <div>
+                    <label for="register-name" class="block text-xs font-bold text-slate-600 mb-1">Full Name</label>
+                    <input type="text" id="register-name" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label for="register-hours" class="block text-xs font-bold text-slate-600 mb-1">Target Hours to Render</label>
+                    <input type="number" id="register-hours" required placeholder="e.g., 480" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label for="register-email" class="block text-xs font-bold text-slate-600 mb-1">Email</label>
+                    <input type="email" id="register-email" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div class="relative">
+                    <label for="register-password" class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                    <input type="password" id="register-password" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none pr-10">
+                    <button type="button" onclick="togglePasswordVisibility('register-password')" class="absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-400 hover:text-slate-600">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="relative">
+                    <label for="register-confirm-password" class="block text-xs font-bold text-slate-600 mb-1">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none pr-10">
+                    <button type="button" onclick="togglePasswordVisibility('register-confirm-password')" class="absolute inset-y-0 right-0 top-6 flex items-center px-3 text-slate-400 hover:text-slate-600">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="pt-2">
+                    <button type="submit" id="btn-create-account" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl hover:bg-indigo-700 font-bold transition-colors shadow-sm disabled:opacity-50">
+                        Create Account
+                    </button>
+                </div>
+                <div class="text-center pt-2">
+                    <p class="text-sm text-slate-500">
+                        Already have an account? 
+                        <button type="button" onclick="showLoginScreen()" class="font-bold text-indigo-600 hover:underline">Log In</button>
+                    </p>
                 </div>
             </form>
         </div>
@@ -118,7 +174,7 @@
                                     Total Hours Logged
                                 </span>
                                 <div class="text-right">
-                                    <span class="text-indigo-600 font-black text-2xl"><span id="dash-total-hours">0</span> <span class="text-slate-400 text-lg font-medium">/ 480</span></span>
+                                    <span class="text-indigo-600 font-black text-2xl"><span id="dash-total-hours">0</span> <span id="dash-target-hours-display" class="text-slate-400 text-lg font-medium">/ 480</span></span>
                                     <p class="text-slate-500 text-sm font-medium"><span id="dash-rem-hours">480</span> hours remaining to completion</p>
                                 </div>
                             </div>
@@ -315,8 +371,8 @@
         // --- State ---
         let activeTab = 'dashboard';
         let isFilesMenuOpen = false;
-        const targetHours = 480;
-        let currentMonth = 3; 
+        let userProfile = { name: 'Intern', targetHours: 480 };
+        let currentMonth = 3;
         const year = 2026;
         let selectedDate = null;
         
@@ -363,29 +419,53 @@
             }
         };
 
-        window.handleRegister = async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const errDiv = document.getElementById('auth-error');
-            const regBtn = document.getElementById('btn-register');
+        window.handleCreateAccount = async () => {
+            const name = document.getElementById('register-name').value;
+            const hours = document.getElementById('register-hours').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            const errDiv = document.getElementById('register-error');
+            const regBtn = document.getElementById('btn-create-account');
 
             errDiv.classList.add('hidden');
-            if(!email || !password) {
-                errDiv.innerText = "Please enter both email and password to register.";
+            if (!name || !hours || !email || !password || !confirmPassword) {
+                errDiv.innerText = "Please fill in all fields.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errDiv.innerText = "Passwords do not match.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (password.length < 6) {
+                errDiv.innerText = "Password should be at least 6 characters.";
                 errDiv.classList.remove('hidden');
                 return;
             }
 
             regBtn.disabled = true;
-            regBtn.innerText = "Registering...";
+            regBtn.innerText = "Creating Account...";
 
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                // Now create the user document in Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    targetHours: Number(hours),
+                    logs: [],
+                    todos: [],
+                    fileSystem: { ojt: { folders: [], items: [] }, company: { folders: [], items: [] } }
+                });
             } catch (error) {
                 errDiv.innerText = error.message.replace('Firebase: ', '');
                 errDiv.classList.remove('hidden');
                 regBtn.disabled = false;
-                regBtn.innerText = "Register";
+                regBtn.innerText = "Create Account";
             }
         };
 
@@ -433,9 +513,11 @@
                 const docSnap = await getDoc(doc(db, "users", userId));
                 if (docSnap.exists()) {
                     const data = docSnap.data();
+                    userProfile.name = data.name || 'Intern';
+                    userProfile.targetHours = data.targetHours || 480;
                     logs = data.logs || [];
                     todos = data.todos || [];
-                    fileSystem = data.fileSystem || fileSystem;
+                    fileSystem = data.fileSystem || { ojt: { folders: [], items: [] }, company: { folders: [], items: [] } };
                 }
                 updateUI();
             } catch (e) {
@@ -446,7 +528,13 @@
         async function saveData() {
             if (!userId) return;
             try {
-                await setDoc(doc(db, "users", userId), { logs, todos, fileSystem });
+                await setDoc(doc(db, "users", userId), {
+                    name: userProfile.name,
+                    targetHours: userProfile.targetHours,
+                    logs,
+                    todos,
+                    fileSystem
+                });
             } catch (e) {
                 console.error("Error saving data:", e);
             }
@@ -552,8 +640,10 @@
 
         function renderDashboard() {
             const totalHours = Math.round(logs.reduce((sum, log) => sum + getLogTotalHours(log), 0) * 100) / 100;
+            const targetHours = userProfile.targetHours;
             const remainingHours = Math.max(targetHours - totalHours, 0);
             document.getElementById('dash-total-hours').innerText = totalHours;
+            document.getElementById('dash-target-hours-display').innerText = `/ ${targetHours}`;
             document.getElementById('dash-rem-hours').innerText = remainingHours;
             document.getElementById('dash-progress').style.width = `${Math.min((totalHours / targetHours) * 100, 100)}%`;
 
@@ -786,6 +876,34 @@
             document.getElementById(`tab-${tabId}`).classList.add('active');
             if (window.innerWidth < 768 && window.isSidebarOpen) window.toggleSidebar();
             updateUI();
+        };
+
+        window.showRegisterScreen = () => {
+            document.getElementById('auth-screen').classList.remove('flex');
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('register-screen').classList.remove('hidden');
+            document.getElementById('register-screen').classList.add('flex');
+            lucide.createIcons();
+        };
+
+        window.showLoginScreen = () => {
+            document.getElementById('register-screen').classList.remove('flex');
+            document.getElementById('register-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('auth-screen').classList.add('flex');
+        };
+
+        window.togglePasswordVisibility = (inputId) => {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
         };
 
         window.toggleFilesMenu = () => { isFilesMenuOpen = !isFilesMenuOpen; updateUI(); };
