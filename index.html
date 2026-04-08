@@ -867,6 +867,17 @@
             const subBtnClass = (id) => `w-full text-left px-4 py-2 rounded-lg transition-all font-medium text-sm whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
             
             nav.innerHTML = `
+                <!-- Profile Section -->
+                <div class="mb-6 p-4 bg-slate-800 rounded-xl">
+                    <div class="flex items-center gap-3 mb-2">
+                        <img id="sidebar-profile-picture" src="${userProfile.profilePicture || 'https://via.placeholder.com/40x40/6366f1/ffffff?text=P'}" alt="Profile" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-400">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-white font-bold text-sm truncate">${userProfile.name}</p>
+                            <p class="text-slate-400 text-xs">${auth.currentUser?.email || ''}</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <button onclick="switchTab('profile')" class="${btnClass('profile')}"><i data-lucide="user" class="w-5 h-5 shrink-0"></i> Profile</button>
                 <button onclick="switchTab('dashboard')" class="${btnClass('dashboard')}"><i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i> Dashboard</button>
                 <button onclick="switchTab('logs')" class="${btnClass('logs')}"><i data-lucide="pen-tool" class="w-5 h-5 shrink-0"></i> Log Entry</button>
@@ -1270,6 +1281,15 @@
                 profilePic.src = 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile';
             };
             
+            // Update sidebar profile picture and name
+            const sidebarProfilePic = document.getElementById('sidebar-profile-picture');
+            if (sidebarProfilePic) {
+                sidebarProfilePic.src = userProfile.profilePicture || 'https://via.placeholder.com/40x40/6366f1/ffffff?text=P';
+                sidebarProfilePic.onerror = () => {
+                    sidebarProfilePic.src = 'https://via.placeholder.com/40x40/6366f1/ffffff?text=P';
+                };
+            }
+            
             // Update theme selection
             document.querySelectorAll('.theme-option').forEach(btn => {
                 btn.classList.toggle('ring-2', btn.dataset.theme === currentTheme);
@@ -1328,6 +1348,13 @@
                 
                 // Update UI
                 profilePic.src = downloadURL;
+                
+                // Update sidebar profile picture
+                const sidebarProfilePic = document.getElementById('sidebar-profile-picture');
+                if (sidebarProfilePic) {
+                    sidebarProfilePic.src = downloadURL;
+                }
+                
                 showNotification('Profile picture updated successfully!');
                 
             } catch (error) {
