@@ -19,282 +19,199 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 overflow-hidden">
+<body class="flex h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
 
-    <!-- === LOGIN / AUTH SCREEN === -->
-    <div id="auth-screen" class="fixed inset-0 bg-slate-100 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-            <div class="flex justify-center mb-6 text-indigo-600">
-                <i data-lucide="target" class="w-12 h-12"></i>
-            </div>
-            <h1 class="text-2xl font-bold text-slate-900 mb-2 text-center">Welcome to InternFlow</h1>
-            <p class="text-sm text-slate-500 text-center mb-6">Please log in or register to access your dashboard.</p>
-            
-            <div id="auth-error" class="hidden bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 border border-red-100"></div>
-            
-            <form class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Email</label>
-                    <input type="email" id="auth-email" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                    <input type="password" id="auth-password" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="handleLogin()" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl hover:bg-indigo-700 font-bold transition-colors shadow-sm">
-                        Login
-                    </button>
-                    <button type="button" onclick="handleRegister()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl hover:bg-slate-200 font-bold transition-colors shadow-sm border border-slate-200">
-                        Register
-                    </button>
-                </div>
-            </form>
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-950 p-6 flex flex-col hidden md:flex h-full flex-shrink-0">
+        <div class="mb-10">
+            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="target" class="text-indigo-500"></i>
+                InternFlow
+            </h1>
+            <p class="text-slate-500 text-sm mt-1">Apr - Jul 2026</p>
         </div>
-    </div>
+        <nav class="flex-1 space-y-2" id="nav-menu"></nav>
+    </aside>
 
-    <!-- === MAIN APP (Hidden until logged in) === -->
-    <div id="app-container" class="hidden h-screen w-full relative overflow-hidden">
-        
-        <!-- Mobile Overlay (Darkens background when menu is open on phones) -->
-        <div id="mobile-overlay" onclick="toggleSidebar()" class="absolute inset-0 bg-slate-900/40 z-40 transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"></div>
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto p-4 md:p-8">
+        <div class="max-w-6xl mx-auto space-y-6">
 
-        <!-- Floating Hamburger Toggle Button -->
-        <button onclick="toggleSidebar()" id="open-sidebar-btn" class="absolute top-4 left-4 md:top-6 md:left-6 z-40 p-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-md hover:bg-slate-50 transition-all duration-300 outline-none flex items-center justify-center opacity-0 pointer-events-none scale-90">
-            <i data-lucide="menu" class="w-5 h-5"></i>
-        </button>
-
-        <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="w-64 bg-slate-950 p-6 flex flex-col h-full flex-shrink-0 z-50 transition-all duration-300 absolute md:relative shadow-2xl md:shadow-none" style="transform: translateX(-100%);">
-            <div class="mb-10 flex justify-between items-start">
-                <div class="overflow-hidden whitespace-nowrap">
-                    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                        <i data-lucide="target" class="text-indigo-500 shrink-0"></i>
-                        InternFlow
-                    </h1>
-                    <p class="text-slate-500 text-sm mt-1">Apr - Jul 2026</p>
+            <!-- === DASHBOARD MODULE === -->
+            <section id="tab-dashboard" class="tab-content active space-y-6">
+                <!-- Progress Header -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex-1 w-full">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <i data-lucide="clock" class="w-6 h-6 text-indigo-600"></i>
+                                Total Hours Logged
+                            </span>
+                            <div class="text-right">
+                                <span class="text-indigo-600 font-black text-2xl"><span id="dash-total-hours">0</span> <span class="text-slate-400 text-lg font-medium">/ 480</span></span>
+                                <p class="text-slate-500 text-sm font-medium"><span id="dash-rem-hours">480</span> hours remaining to completion</p>
+                            </div>
+                        </div>
+                        <div class="h-4 bg-slate-100 rounded-full overflow-hidden mt-3">
+                            <div id="dash-progress" class="h-full bg-indigo-600 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-1.5 bg-slate-800 rounded-lg transition-colors outline-none shrink-0" title="Collapse Sidebar">
-                    <i data-lucide="panel-left-close" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <nav class="flex-1 space-y-2 overflow-y-auto overflow-x-hidden" id="nav-menu"></nav>
-            
-            <!-- Logout Button -->
-            <button onclick="handleLogout()" class="mt-4 w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-red-400 hover:bg-red-500/10 hover:text-red-500">
-                <i data-lucide="log-out" class="w-5 h-5 shrink-0"></i> Logout
-            </button>
-        </aside>
 
-        <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 h-full overflow-y-auto p-4 pt-20 md:pt-8 md:p-8 w-full transition-all duration-300">
-            <div class="max-w-6xl mx-auto space-y-6">
-
-                <!-- === DASHBOARD MODULE === -->
-                <section id="tab-dashboard" class="tab-content active space-y-6">
-                    <!-- Progress Header -->
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-6">
-                        <div class="flex-1 w-full">
-                            <div class="flex justify-between items-end mb-2">
-                                <span class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                                    <i data-lucide="clock" class="w-6 h-6 text-indigo-600"></i>
-                                    Total Hours Logged
-                                </span>
-                                <div class="text-right">
-                                    <span class="text-indigo-600 font-black text-2xl"><span id="dash-total-hours">0</span> <span class="text-slate-400 text-lg font-medium">/ 480</span></span>
-                                    <p class="text-slate-500 text-sm font-medium"><span id="dash-rem-hours">480</span> hours remaining to completion</p>
-                                </div>
-                            </div>
-                            <div class="h-4 bg-slate-100 rounded-full overflow-hidden mt-3">
-                                <div id="dash-progress" class="h-full bg-indigo-600 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Calendar View -->
-                        <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                            <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-lg font-bold flex items-center gap-2">
-                                    <i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i>
-                                    <span id="calendar-month-year">April 2026</span>
-                                </h2>
-                                <div class="flex gap-1">
-                                    <button onclick="changeMonth(-1)" id="btn-prev-month" class="p-1 rounded-lg hover:bg-slate-100 disabled:opacity-30">
-                                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                                    </button>
-                                    <button onclick="changeMonth(1)" id="btn-next-month" class="p-1 rounded-lg hover:bg-slate-100 disabled:opacity-30">
-                                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
-                                <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
-                            </div>
-                            <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
-                            <div class="flex gap-4 mt-6 text-xs font-medium text-slate-500 justify-center">
-                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Hours Logged</span>
-                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Deadline</span>
-                            </div>
-                        </div>
-
-                        <!-- Upcoming Events -->
-                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[500px]">
-                            <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                                <i data-lucide="bell" class="w-5 h-5 text-indigo-500"></i>
-                                Upcoming Deadlines
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Calendar View -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i>
+                                <span id="calendar-month-year">April 2026</span>
                             </h2>
-                            <div id="upcoming-events" class="flex-1 overflow-y-auto pr-2 space-y-3"></div>
+                            <div class="flex gap-1">
+                                <button onclick="changeMonth(-1)" id="btn-prev-month" class="p-1 rounded-lg hover:bg-slate-100 disabled:opacity-30">
+                                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                                </button>
+                                <button onclick="changeMonth(1)" id="btn-next-month" class="p-1 rounded-lg hover:bg-slate-100 disabled:opacity-30">
+                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+                            <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
+                        <div class="flex gap-4 mt-6 text-xs font-medium text-slate-500 justify-center">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Hours Logged</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Deadline</span>
                         </div>
                     </div>
-                </section>
 
-                <!-- === LOG ENTRY MODULE === -->
-                <section id="tab-logs" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-4 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col max-h-[700px]">
-                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 flex-shrink-0">
-                            <i data-lucide="pen-tool" class="w-5 h-5 text-indigo-500"></i>
-                            <span id="log-form-title">New Log Entry</span>
+                    <!-- Upcoming Events -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[500px]">
+                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="bell" class="w-5 h-5 text-indigo-500"></i>
+                            Upcoming Deadlines
                         </h2>
-                        <form onsubmit="saveLogEntry(event)" class="flex-1 overflow-y-auto pr-2 space-y-5">
-                            <div class="sticky top-0 bg-white pb-2 z-10 border-b border-slate-100">
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Log Date</label>
-                                <input type="date" id="log-date-input" min="2026-04-01" max="2026-07-31" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium" />
-                            </div>
-                            <div id="log-tasks-container" class="space-y-4"></div>
-                            <button type="button" onclick="addLogTaskRow()" class="w-full py-2.5 border-2 border-dashed border-slate-300 text-slate-600 rounded-xl hover:border-indigo-400 hover:text-indigo-600 font-bold text-sm transition-colors flex items-center justify-center gap-2">
-                                <i data-lucide="plus" class="w-4 h-4"></i> Add Another Task
+                        <div id="upcoming-events" class="flex-1 overflow-y-auto pr-2 space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- === LOG ENTRY MODULE === -->
+            <section id="tab-logs" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col max-h-[700px]">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 flex-shrink-0">
+                        <i data-lucide="pen-tool" class="w-5 h-5 text-indigo-500"></i>
+                        <span id="log-form-title">New Log Entry</span>
+                    </h2>
+                    <form onsubmit="saveLogEntry(event)" class="flex-1 overflow-y-auto pr-2 space-y-5">
+                        <div class="sticky top-0 bg-white pb-2 z-10 border-b border-slate-100">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Log Date</label>
+                            <input type="date" id="log-date-input" min="2026-04-01" max="2026-07-31" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium" />
+                        </div>
+                        <div id="log-tasks-container" class="space-y-4"></div>
+                        <button type="button" onclick="addLogTaskRow()" class="w-full py-2.5 border-2 border-dashed border-slate-300 text-slate-600 rounded-xl hover:border-indigo-400 hover:text-indigo-600 font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add Another Task
+                        </button>
+                        <div class="pt-2 pb-4 flex gap-3">
+                            <button type="submit" id="log-submit-btn" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 font-bold transition-colors shadow-sm">
+                                Save Daily Entry
                             </button>
-                            <div class="pt-2 pb-4 flex gap-3">
-                                <button type="submit" id="log-submit-btn" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 font-bold transition-colors shadow-sm">
-                                    Save Daily Entry
-                                </button>
-                                <button type="button" id="log-cancel-btn" onclick="cancelLogEdit()" class="hidden flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl hover:bg-slate-200 font-bold transition-colors shadow-sm">
-                                    Cancel
-                                </button>
+                            <button type="button" id="log-cancel-btn" onclick="cancelLogEdit()" class="hidden flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl hover:bg-slate-200 font-bold transition-colors shadow-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="lg:col-span-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[700px]">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 flex-shrink-0">
+                        <i data-lucide="file-text" class="w-5 h-5 text-indigo-500"></i>
+                        Log History
+                    </h2>
+                    <div id="log-history-list" class="flex-1 overflow-y-auto pr-2 space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- === TO-DO LIST MODULE === -->
+            <section id="tab-todos" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-md">
+                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            Quick Add Task
+                        </h2>
+                        <form onsubmit="addTodo(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-indigo-200 mb-1">Task Description</label>
+                                <textarea id="todo-text-input" required placeholder="What needs to be done?" rows="3" class="w-full px-4 py-2 bg-indigo-500/50 border border-indigo-400 rounded-lg placeholder-indigo-300 text-white focus:outline-none focus:ring-2 focus:ring-white text-sm resize-none"></textarea>
                             </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-indigo-200 mb-1">Deadline</label>
+                                <input type="date" id="todo-date-input" required min="2026-04-01" max="2026-07-31" class="w-full px-4 py-2 bg-indigo-500/50 border border-indigo-400 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white text-sm [color-scheme:dark]" />
+                            </div>
+                            <button type="submit" class="w-full bg-white text-indigo-600 py-2.5 rounded-lg hover:bg-slate-100 font-bold transition-colors text-sm shadow-sm">
+                                Create Task
+                            </button>
                         </form>
                     </div>
-                    <div class="lg:col-span-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[700px]">
-                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 flex-shrink-0">
-                            <i data-lucide="file-text" class="w-5 h-5 text-indigo-500"></i>
-                            Log History
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Pending</p>
+                            <p id="todo-pending-count" class="text-2xl font-black text-slate-800">0</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-400 uppercase">Completed</p>
+                            <p id="todo-completed-count" class="text-2xl font-black text-indigo-600">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[700px]">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 shrink-0">
+                        <i data-lucide="layout-list" class="w-5 h-5 text-indigo-500"></i>
+                        Task Board
+                    </h2>
+                    <div class="flex-1 overflow-y-auto pr-2">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pending Tasks</h3>
+                        <div id="todo-list-pending" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Completed Tasks</h3>
+                        <div id="todo-list-completed" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- === FILES MODULE === -->
+            <section id="tab-files-ojt" class="tab-content">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold flex items-center gap-2 text-indigo-700">
+                            <i data-lucide="folder" class="w-5 h-5"></i> OJT Requirements
                         </h2>
-                        <div id="log-history-list" class="flex-1 overflow-y-auto pr-2 space-y-4"></div>
+                        <button onclick="addFolder('ojt')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
+                            <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
+                        </button>
                     </div>
-                </section>
+                    <div id="files-ojt-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
+                </div>
+            </section>
 
-                <!-- === TO-DO LIST MODULE === -->
-                <section id="tab-todos" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-4 space-y-6">
-                        <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-md">
-                            <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                                Quick Add Task
-                            </h2>
-                            <form onsubmit="addTodo(event)" class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-semibold text-indigo-200 mb-1">Task Description</label>
-                                    <textarea id="todo-text-input" required placeholder="What needs to be done?" rows="3" class="w-full px-4 py-2 bg-indigo-500/50 border border-indigo-400 rounded-lg placeholder-indigo-300 text-white focus:outline-none focus:ring-2 focus:ring-white text-sm resize-none"></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-indigo-200 mb-1">Deadline</label>
-                                    <input type="date" id="todo-date-input" required min="2026-04-01" max="2026-07-31" class="w-full px-4 py-2 bg-indigo-500/50 border border-indigo-400 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white text-sm [color-scheme:dark]" />
-                                </div>
-                                <button type="submit" class="w-full bg-white text-indigo-600 py-2.5 rounded-lg hover:bg-slate-100 font-bold transition-colors text-sm shadow-sm">
-                                    Create Task
-                                </button>
-                            </form>
-                        </div>
-                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex justify-between items-center">
-                            <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase">Pending</p>
-                                <p id="todo-pending-count" class="text-2xl font-black text-slate-800">0</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xs font-bold text-slate-400 uppercase">Completed</p>
-                                <p id="todo-completed-count" class="text-2xl font-black text-indigo-600">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="lg:col-span-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[700px]">
-                        <h2 class="text-lg font-bold mb-6 flex items-center gap-2 shrink-0">
-                            <i data-lucide="layout-list" class="w-5 h-5 text-indigo-500"></i>
-                            Task Board
+            <section id="tab-files-company" class="tab-content">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold flex items-center gap-2 text-slate-700">
+                            <i data-lucide="folder" class="w-5 h-5"></i> Company Files
                         </h2>
-                        <div class="flex-1 overflow-y-auto pr-2">
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pending Tasks</h3>
-                            <div id="todo-list-pending" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Completed Tasks</h3>
-                            <div id="todo-list-completed" class="space-y-3"></div>
-                        </div>
+                        <button onclick="addFolder('company')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
+                            <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
+                        </button>
                     </div>
-                </section>
+                    <div id="files-company-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
+                </div>
+            </section>
 
-                <!-- === FILES MODULE === -->
-                <section id="tab-files-ojt" class="tab-content">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-bold flex items-center gap-2 text-indigo-700">
-                                <i data-lucide="folder" class="w-5 h-5"></i> OJT Requirements
-                            </h2>
-                            <button onclick="addFolder('ojt')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
-                                <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
-                            </button>
-                        </div>
-                        <div id="files-ojt-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
-                    </div>
-                </section>
+        </div>
+    </main>
 
-                <section id="tab-files-company" class="tab-content">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-bold flex items-center gap-2 text-slate-700">
-                                <i data-lucide="folder" class="w-5 h-5"></i> Company Files
-                            </h2>
-                            <button onclick="addFolder('company')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
-                                <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
-                            </button>
-                        </div>
-                        <div id="files-company-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
-                    </div>
-                </section>
-
-            </div>
-        </main>
-    </div>
-
-    <!-- JavaScript Logic (Firebase Auth & Cloud Storage) -->
-    <script type="module">
-        // Import Firebase Functions
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // ==========================================
-        // ✅ YOUR FIREBASE CONFIGURATION 
-        // ==========================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBPIdaT9M7_a3i2CKVOWZX6SWnrhZ1TDyk",
-            authDomain: "internsync-cf6fd.firebaseapp.com",
-            projectId: "internsync-cf6fd",
-            storageBucket: "internsync-cf6fd.firebasestorage.app",
-            messagingSenderId: "965590153883",
-            appId: "1:965590153883:web:76fc29d737b232ad97643e",
-            measurementId: "G-J7BCD2M80Z"
-        };
-
-        let app, auth, db, userId;
-
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-        } catch (e) {
-            document.getElementById('auth-error').classList.remove('hidden');
-            document.getElementById('auth-error').innerText = "Developer: Firebase initialization failed.";
-        }
-
+    <!-- JavaScript Logic (Local Storage + App Logic) -->
+    <script>
         // --- State ---
         let activeTab = 'dashboard';
         let isFilesMenuOpen = false;
@@ -302,10 +219,6 @@
         let currentMonth = 3; 
         const year = 2026;
         let selectedDate = null;
-        
-        // --- Sidebar State ---
-        window.isSidebarOpen = window.innerWidth >= 768; // Open on desktop, closed on mobile by default
-        window.previousWidth = window.innerWidth;
 
         // Arrays to hold your data
         let logs = [];
@@ -319,155 +232,28 @@
         let editingLogId = null;
         let linkFormActive = { category: '', folderId: '' };
 
-        // --- Auth Functions ---
-        window.handleLogin = async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const errDiv = document.getElementById('auth-error');
-            errDiv.classList.add('hidden');
-
-            if(!email || !password) {
-                errDiv.innerText = "Please enter both email and password.";
-                errDiv.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                errDiv.innerText = error.message.replace('Firebase: ', '');
-                errDiv.classList.remove('hidden');
-            }
-        };
-
-        window.handleRegister = async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const errDiv = document.getElementById('auth-error');
-            errDiv.classList.add('hidden');
-
-            if(!email || !password) {
-                errDiv.innerText = "Please enter both email and password to register.";
-                errDiv.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                errDiv.innerText = error.message.replace('Firebase: ', '');
-                errDiv.classList.remove('hidden');
-            }
-        };
-
-        window.handleLogout = async () => {
-            await signOut(auth);
-        };
-
-        if (auth) {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('hidden');
-                    document.getElementById('app-container').classList.add('flex');
-                    applySidebarState(); // Ensure sidebar displays correctly upon login
-                    loadData();
-                } else {
-                    userId = null;
-                    document.getElementById('auth-screen').classList.remove('hidden');
-                    document.getElementById('app-container').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('flex');
-                    
-                    // Reset local data
-                    logs = []; todos = []; fileSystem = { ojt: { folders: [], items: [] }, company: { folders: [], items: [] } };
+        // --- Local Storage Functions (Saves to your browser) ---
+        function loadData() {
+            const savedData = localStorage.getItem('internflowData');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                logs = parsed.logs || [];
+                todos = parsed.todos || [];
+                if (parsed.fileSystem) {
+                    fileSystem = parsed.fileSystem;
                 }
-            });
-        }
-
-        // --- Cloud Storage Functions ---
-        async function loadData() {
-            if (!userId) return;
-            try {
-                const docSnap = await getDoc(doc(db, "users", userId));
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    logs = data.logs || [];
-                    todos = data.todos || [];
-                    fileSystem = data.fileSystem || fileSystem;
-                }
-                updateUI();
-            } catch (e) {
-                console.error("Error loading data:", e);
-            }
-        }
-
-        async function saveData() {
-            if (!userId) return;
-            try {
-                await setDoc(doc(db, "users", userId), { logs, todos, fileSystem });
-            } catch (e) {
-                console.error("Error saving data:", e);
-            }
-        }
-
-        // --- Sidebar Logic ---
-        window.applySidebarState = () => {
-            const sidebar = document.getElementById('sidebar');
-            const openBtn = document.getElementById('open-sidebar-btn');
-            const overlay = document.getElementById('mobile-overlay');
-            
-            if (window.isSidebarOpen) {
-                // Open State
-                sidebar.style.transform = 'translateX(0)';
-                sidebar.style.marginLeft = '0';
-                openBtn.style.opacity = '0';
-                openBtn.style.pointerEvents = 'none';
-                openBtn.style.transform = 'scale(0.9)';
-                
-                if (window.innerWidth < 768 && overlay) {
-                    overlay.style.opacity = '1';
-                    overlay.style.pointerEvents = 'auto';
-                }
+                console.log("✅ Data successfully loaded from LocalStorage!");
             } else {
-                // Closed State
-                sidebar.style.transform = 'translateX(-100%)';
-                // Pull it out of flex container layout on desktop
-                sidebar.style.marginLeft = window.innerWidth >= 768 ? '-16rem' : '0';
-                openBtn.style.opacity = '1';
-                openBtn.style.pointerEvents = 'auto';
-                openBtn.style.transform = 'scale(1)';
-                
-                if (overlay) {
-                    overlay.style.opacity = '0';
-                    overlay.style.pointerEvents = 'none';
-                }
+                console.log("ℹ️ No previous data found. Starting fresh.");
             }
-        };
+            updateUI();
+        }
 
-        window.toggleSidebar = () => {
-            window.isSidebarOpen = !window.isSidebarOpen;
-            window.applySidebarState();
-        };
-
-        window.addEventListener('resize', () => {
-            // Auto close/open when resizing past tablet breakpoint
-            if(window.innerWidth >= 768 && window.previousWidth < 768) {
-                window.isSidebarOpen = true;
-                window.applySidebarState();
-            } else if (window.innerWidth < 768 && window.previousWidth >= 768) {
-                window.isSidebarOpen = false;
-                window.applySidebarState();
-            } else {
-                // Maintain margin structure if simply resizing without crossing breakpoint
-                if(window.innerWidth >= 768 && !window.isSidebarOpen) {
-                    document.getElementById('sidebar').style.marginLeft = '-16rem';
-                } else if (window.innerWidth < 768) {
-                    document.getElementById('sidebar').style.marginLeft = '0';
-                }
-            }
-            window.previousWidth = window.innerWidth;
-        });
+        function saveData() {
+            const dataToSave = { logs, todos, fileSystem };
+            localStorage.setItem('internflowData', JSON.stringify(dataToSave));
+            console.log("💾 Data saved successfully.");
+        }
 
         // --- Core Functions ---
         function calculateDuration(start, end) {
@@ -485,7 +271,6 @@
 
         // --- Render Functions ---
         function updateUI() {
-            if (!userId) return; // Don't render if not logged in
             renderSidebar();
             renderDashboard();
             renderLogForm();
@@ -498,17 +283,17 @@
 
         function renderSidebar() {
             const nav = document.getElementById('nav-menu');
-            const btnClass = (id) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
-            const subBtnClass = (id) => `w-full text-left px-4 py-2 rounded-lg transition-all font-medium text-sm whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            const btnClass = (id) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            const subBtnClass = (id) => `w-full text-left px-4 py-2 rounded-lg transition-all font-medium text-sm ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
             
             nav.innerHTML = `
-                <button onclick="switchTab('dashboard')" class="${btnClass('dashboard')}"><i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i> Dashboard</button>
-                <button onclick="switchTab('logs')" class="${btnClass('logs')}"><i data-lucide="pen-tool" class="w-5 h-5 shrink-0"></i> Log Entry</button>
-                <button onclick="switchTab('todos')" class="${btnClass('todos')}"><i data-lucide="list-todo" class="w-5 h-5 shrink-0"></i> Task Board</button>
+                <button onclick="switchTab('dashboard')" class="${btnClass('dashboard')}"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
+                <button onclick="switchTab('logs')" class="${btnClass('logs')}"><i data-lucide="pen-tool" class="w-5 h-5"></i> Log Entry</button>
+                <button onclick="switchTab('todos')" class="${btnClass('todos')}"><i data-lucide="list-todo" class="w-5 h-5"></i> Task Board</button>
                 <div>
-                    <button onclick="toggleFilesMenu()" class="${activeTab.startsWith('files') ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'} w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium whitespace-nowrap">
-                        <div class="flex items-center gap-3"><i data-lucide="folder" class="w-5 h-5 shrink-0"></i> Files</div>
-                        <i data-lucide="${isFilesMenuOpen ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4 shrink-0"></i>
+                    <button onclick="toggleFilesMenu()" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium ${activeTab.startsWith('files') ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}">
+                        <div class="flex items-center gap-3"><i data-lucide="folder" class="w-5 h-5"></i> Files</div>
+                        <i data-lucide="${isFilesMenuOpen ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4"></i>
                     </button>
                     ${isFilesMenuOpen ? `
                         <div class="ml-8 mt-2 space-y-1">
@@ -749,17 +534,11 @@
             `).join('');
         }
 
-        // --- Attach Functions to Window ---
+        // --- Attach Functions to Window (Required for HTML event handlers) ---
         window.switchTab = (tabId) => {
             activeTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            
-            // Auto close sidebar on mobile when a tab is clicked
-            if (window.innerWidth < 768 && window.isSidebarOpen) {
-                window.toggleSidebar();
-            }
-            
             updateUI();
         };
 
@@ -866,8 +645,10 @@
 
         window.deleteItem = (category, id) => { fileSystem[category].items = fileSystem[category].items.filter(i => i.id !== id); saveData(); updateUI(); };
 
-        // Initial setup
-        lucide.createIcons();
+        // REMOVED THE DANGEROUS BEFOREUNLOAD EVENT HERE
+
+        // Load data on start immediately without waiting for window.onload
+        loadData();
     </script>
 </body>
 </html>
