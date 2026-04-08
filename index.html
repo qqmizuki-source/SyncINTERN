@@ -28,9 +28,163 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Theme Styles */
+        .theme-white { background-color: #ffffff; color: #334155; }
+        .theme-white .bg-slate-50 { background-color: #f8fafc; }
+        .theme-white .bg-white { background-color: #ffffff; }
+        .theme-white .text-slate-800 { color: #1e293b; }
+        .theme-white .text-slate-600 { color: #475569; }
+        .theme-white .text-slate-500 { color: #64748b; }
+        .theme-white .border-slate-100 { border-color: #f1f5f9; }
+        .theme-white .border-slate-200 { border-color: #e2e8f0; }
+        .theme-white .bg-slate-950 { background-color: #020617; }
+        .theme-white .text-white { color: #ffffff; }
+        .theme-white .text-slate-400 { color: #94a3b8; }
+        .theme-white .bg-slate-800 { background-color: #1e293b; }
+        .theme-white .hover\:bg-slate-800:hover { background-color: #1e293b; }
+        .theme-white .bg-indigo-600 { background-color: #4f46e5; }
+        .theme-white .hover\:bg-indigo-700:hover { background-color: #4338ca; }
+        .theme-white .text-indigo-600 { color: #4f46e5; }
+        .theme-white .bg-indigo-50 { background-color: #eef2ff; }
+        .theme-white .hover\:bg-indigo-100:hover { background-color: #e0e7ff; }
+        .theme-white .text-indigo-500 { color: #6366f1; }
+        .theme-white .bg-indigo-500 { background-color: #6366f1; }
+        .theme-white .bg-orange-400 { background-color: #fb923c; }
+        .theme-white .text-orange-600 { color: #ea580c; }
+        .theme-white .bg-red-50 { background-color: #fef2f2; }
+        .theme-white .text-red-600 { color: #dc2626; }
+        .theme-white .border-red-100 { border-color: #fee2e2; }
+        .theme-white .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
+        .theme-white .text-red-500 { color: #ef4444; }
+        .theme-white .hover\:text-red-500:hover { color: #ef4444; }
+
+        .theme-pink { background-color: #fdf2f8; color: #be185d; }
+        .theme-pink .bg-slate-50 { background-color: #fdf2f8; }
+        .theme-pink .bg-white { background-color: #fce7f3; }
+        .theme-pink .text-slate-800 { color: #be185d; }
+        .theme-pink .text-slate-600 { color: #db2777; }
+        .theme-pink .text-slate-500 { color: #ec4899; }
+        .theme-pink .border-slate-100 { border-color: #fce7f3; }
+        .theme-pink .border-slate-200 { border-color: #fbcfe8; }
+        .theme-pink .bg-slate-950 { background-color: #831843; }
+        .theme-pink .text-white { color: #fce7f3; }
+        .theme-pink .text-slate-400 { color: #f9a8d4; }
+        .theme-pink .bg-slate-800 { background-color: #be185d; }
+        .theme-pink .hover\:bg-slate-800:hover { background-color: #be185d; }
+        .theme-pink .bg-indigo-600 { background-color: #ec4899; }
+        .theme-pink .hover\:bg-indigo-700:hover { background-color: #db2777; }
+        .theme-pink .text-indigo-600 { color: #ec4899; }
+        .theme-pink .bg-indigo-50 { background-color: #fdf2f8; }
+        .theme-pink .hover\:bg-indigo-100:hover { background-color: #fce7f3; }
+        .theme-pink .text-indigo-500 { color: #f472b6; }
+        .theme-pink .bg-indigo-500 { background-color: #f472b6; }
+        .theme-pink .bg-orange-400 { background-color: #fb7185; }
+        .theme-pink .text-orange-600 { color: #f43f5e; }
+        .theme-pink .bg-red-50 { background-color: #fef2f2; }
+        .theme-pink .text-red-600 { color: #dc2626; }
+        .theme-pink .border-red-100 { border-color: #fee2e2; }
+        .theme-pink .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
+        .theme-pink .text-red-500 { color: #ef4444; }
+        .theme-pink .hover\:text-red-500:hover { color: #ef4444; }
+
+        .theme-dark { background-color: #0f172a; color: #f1f5f9; }
+        .theme-dark .bg-slate-50 { background-color: #1e293b; }
+        .theme-dark .bg-white { background-color: #334155; }
+        .theme-dark .text-slate-800 { color: #f1f5f9; }
+        .theme-dark .text-slate-600 { color: #cbd5e1; }
+        .theme-dark .text-slate-500 { color: #94a3b8; }
+        .theme-dark .border-slate-100 { border-color: #334155; }
+        .theme-dark .border-slate-200 { border-color: #475569; }
+        .theme-dark .bg-slate-950 { background-color: #020617; }
+        .theme-dark .text-white { color: #f1f5f9; }
+        .theme-dark .text-slate-400 { color: #94a3b8; }
+        .theme-dark .bg-slate-800 { background-color: #1e293b; }
+        .theme-dark .hover\:bg-slate-800:hover { background-color: #1e293b; }
+        .theme-dark .bg-indigo-600 { background-color: #6366f1; }
+        .theme-dark .hover\:bg-indigo-700:hover { background-color: #4f46e5; }
+        .theme-dark .text-indigo-600 { color: #818cf8; }
+        .theme-dark .bg-indigo-50 { background-color: #1e293b; }
+        .theme-dark .hover\:bg-indigo-100:hover { background-color: #334155; }
+        .theme-dark .text-indigo-500 { color: #818cf8; }
+        .theme-dark .bg-indigo-500 { background-color: #6366f1; }
+        .theme-dark .bg-orange-400 { background-color: #fb923c; }
+        .theme-dark .text-orange-600 { color: #ea580c; }
+        .theme-dark .bg-red-50 { background-color: #1e293b; }
+        .theme-dark .text-red-600 { color: #dc2626; }
+        .theme-dark .border-red-100 { border-color: #334155; }
+        .theme-dark .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
+        .theme-dark .text-red-500 { color: #ef4444; }
+        .theme-dark .hover\:text-red-500:hover { color: #ef4444; }
+
+        .theme-green { background-color: #f0fdf4; color: #166534; }
+        .theme-green .bg-slate-50 { background-color: #f0fdf4; }
+        .theme-green .bg-white { background-color: #dcfce7; }
+        .theme-green .text-slate-800 { color: #166534; }
+        .theme-green .text-slate-600 { color: #16a34a; }
+        .theme-green .text-slate-500 { color: #22c55e; }
+        .theme-green .border-slate-100 { border-color: #dcfce7; }
+        .theme-green .border-slate-200 { border-color: #bbf7d0; }
+        .theme-green .bg-slate-950 { background-color: #14532d; }
+        .theme-green .text-white { color: #dcfce7; }
+        .theme-green .text-slate-400 { color: #86efac; }
+        .theme-green .bg-slate-800 { background-color: #166534; }
+        .theme-green .hover\:bg-slate-800:hover { background-color: #166534; }
+        .theme-green .bg-indigo-600 { background-color: #16a34a; }
+        .theme-green .hover\:bg-indigo-700:hover { background-color: #15803d; }
+        .theme-green .text-indigo-600 { color: #16a34a; }
+        .theme-green .bg-indigo-50 { background-color: #f0fdf4; }
+        .theme-green .hover\:bg-indigo-100:hover { background-color: #dcfce7; }
+        .theme-green .text-indigo-500 { color: #4ade80; }
+        .theme-green .bg-indigo-500 { background-color: #22c55e; }
+        .theme-green .bg-orange-400 { background-color: #84cc16; }
+        .theme-green .text-orange-600 { color: #65a30d; }
+        .theme-green .bg-red-50 { background-color: #fef2f2; }
+        .theme-green .text-red-600 { color: #dc2626; }
+        .theme-green .border-red-100 { border-color: #fee2e2; }
+        .theme-green .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
+        .theme-green .text-red-500 { color: #ef4444; }
+        .theme-green .hover\:text-red-500:hover { color: #ef4444; }
+
+        .theme-yellow { background-color: #fffffe; color: #92400e; }
+        .theme-yellow .bg-slate-50 { background-color: #fffffe; }
+        .theme-yellow .bg-white { background-color: #fefce8; }
+        .theme-yellow .text-slate-800 { color: #92400e; }
+        .theme-yellow .text-slate-600 { color: #d97706; }
+        .theme-yellow .text-slate-500 { color: #f59e0b; }
+        .theme-yellow .border-slate-100 { border-color: #fefce8; }
+        .theme-yellow .border-slate-200 { border-color: #fde68a; }
+        .theme-yellow .bg-slate-950 { background-color: #78350f; }
+        .theme-yellow .text-white { color: #fefce8; }
+        .theme-yellow .text-slate-400 { color: #fcd34d; }
+        .theme-yellow .bg-slate-800 { background-color: #92400e; }
+        .theme-yellow .hover\:bg-slate-800:hover { background-color: #92400e; }
+        .theme-yellow .bg-indigo-600 { background-color: #d97706; }
+        .theme-yellow .hover\:bg-indigo-700:hover { background-color: #b45309; }
+        .theme-yellow .text-indigo-600 { color: #d97706; }
+        .theme-yellow .bg-indigo-50 { background-color: #fffffe; }
+        .theme-yellow .hover\:bg-indigo-100:hover { background-color: #fefce8; }
+        .theme-yellow .text-indigo-500 { color: #f59e0b; }
+        .theme-yellow .bg-indigo-500 { background-color: #f59e0b; }
+        .theme-yellow .bg-orange-400 { background-color: #fb923c; }
+        .theme-yellow .text-orange-600 { color: #ea580c; }
+        .theme-yellow .bg-red-50 { background-color: #fef2f2; }
+        .theme-yellow .text-red-600 { color: #dc2626; }
+        .theme-yellow .border-red-100 { border-color: #fee2e2; }
+        .theme-yellow .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
+        .theme-yellow .text-red-500 { color: #ef4444; }
+        .theme-yellow .hover\:text-red-500:hover { color: #ef4444; }
+        
+        /* Notification Styles */
+        #notification {
+            transition: transform 0.3s ease-in-out;
+        }
+        #notification.translate-x-full {
+            transform: translateX(100%);
+        }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 overflow-hidden">
+<body class="bg-slate-50 font-sans text-slate-800 overflow-hidden theme-white">
 
     <!-- === INITIAL LOADING SCREEN === -->
     <div id="loading-overlay" class="fixed inset-0 bg-white flex flex-col items-center justify-center z-[100] transition-opacity duration-500">
@@ -333,6 +487,92 @@
                     </div>
                 </section>
 
+                <!-- === PROFILE MODULE === -->
+                <section id="tab-profile" class="tab-content">
+                    <div class="max-w-4xl mx-auto space-y-6">
+                        <!-- Profile Picture Section -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                            <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+                                <i data-lucide="camera" class="w-5 h-5 text-indigo-500"></i>
+                                Profile Picture
+                            </h2>
+                            <div class="flex flex-col items-center space-y-4">
+                                <div class="relative">
+                                    <img id="profile-picture" src="https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100">
+                                    <button onclick="document.getElementById('profile-pic-input').click()" class="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition-colors">
+                                        <i data-lucide="camera" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <input type="file" id="profile-pic-input" accept="image/*" class="hidden" onchange="handleProfilePictureUpload(event)">
+                                <p class="text-sm text-slate-500 text-center">Click the camera icon to upload a new profile picture</p>
+                            </div>
+                        </div>
+
+                        <!-- Profile Information -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                            <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+                                <i data-lucide="user" class="w-5 h-5 text-indigo-500"></i>
+                                Profile Settings
+                            </h2>
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-600 mb-2">Full Name</label>
+                                    <input type="text" id="profile-name" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-600 mb-2">Target Hours</label>
+                                    <input type="number" id="profile-target-hours" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-600 mb-2">Email</label>
+                                    <input type="email" id="profile-email" readonly class="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed">
+                                </div>
+                                <button onclick="saveProfile()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-bold transition-colors">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Theme Settings -->
+                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                            <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+                                <i data-lucide="palette" class="w-5 h-5 text-indigo-500"></i>
+                                Theme Settings
+                            </h2>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                <button onclick="setTheme('white')" class="theme-option p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-300 transition-colors text-center" data-theme="white">
+                                    <div class="w-full h-16 bg-white border border-slate-200 rounded-lg mb-2"></div>
+                                    <span class="text-sm font-medium text-slate-700">White</span>
+                                </button>
+                                <button onclick="setTheme('pink')" class="theme-option p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-300 transition-colors text-center" data-theme="pink">
+                                    <div class="w-full h-16 bg-pink-50 border border-pink-200 rounded-lg mb-2"></div>
+                                    <span class="text-sm font-medium text-slate-700">Pink</span>
+                                </button>
+                                <button onclick="setTheme('dark')" class="theme-option p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-300 transition-colors text-center" data-theme="dark">
+                                    <div class="w-full h-16 bg-slate-900 border border-slate-700 rounded-lg mb-2"></div>
+                                    <span class="text-sm font-medium text-slate-700">Dark</span>
+                                </button>
+                                <button onclick="setTheme('green')" class="theme-option p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-300 transition-colors text-center" data-theme="green">
+                                    <div class="w-full h-16 bg-green-50 border border-green-200 rounded-lg mb-2"></div>
+                                    <span class="text-sm font-medium text-slate-700">Green</span>
+                                </button>
+                                <button onclick="setTheme('yellow')" class="theme-option p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-300 transition-colors text-center" data-theme="yellow">
+                                    <div class="w-full h-16 bg-yellow-50 border border-yellow-200 rounded-lg mb-2"></div>
+                                    <span class="text-sm font-medium text-slate-700">Yellow</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Toast -->
+                    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                            <span id="notification-text">Changes saved successfully!</span>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </main>
     </div>
@@ -343,6 +583,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // ==========================================
         // ✅ YOUR FIREBASE CONFIGURATION 
@@ -357,21 +598,23 @@
             measurementId: "G-J7BCD2M80Z"
         };
 
-        let app, auth, db, userId;
+        let app, auth, db, storage, userId;
 
         try {
             app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
+            storage = getStorage(app);
         } catch (e) {
             console.error("Firebase init failed:", e);
             document.getElementById('loading-overlay').innerHTML = `<p class="text-red-500">Configuration Error. Please check your keys.</p>`;
         }
 
         // --- State ---
-        let activeTab = 'dashboard';
+        let activeTab = 'profile';
         let isFilesMenuOpen = false;
-        let userProfile = { name: 'Intern', targetHours: 480 };
+        let userProfile = { name: 'Intern', targetHours: 480, profilePicture: '' };
+        let currentTheme = 'white';
         let currentMonth = 3;
         const year = 2026;
         let selectedDate = null;
@@ -513,8 +756,10 @@
                 const docSnap = await getDoc(doc(db, "users", userId));
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    userProfile.name = data.name || 'Intern';
-                    userProfile.targetHours = data.targetHours || 480;
+                    userProfile.name = data.profile?.name || data.name || 'Intern';
+                    userProfile.targetHours = data.profile?.targetHours || data.targetHours || 480;
+                    userProfile.profilePicture = data.profile?.profilePicture || data.profilePicture || '';
+                    currentTheme = data.theme || 'white';
                     logs = data.logs || [];
                     todos = data.todos || [];
                     fileSystem = data.fileSystem || { ojt: { folders: [], items: [] }, company: { folders: [], items: [] } };
@@ -529,8 +774,8 @@
             if (!userId) return;
             try {
                 await setDoc(doc(db, "users", userId), {
-                    name: userProfile.name,
-                    targetHours: userProfile.targetHours,
+                    profile: userProfile,
+                    theme: currentTheme,
                     logs,
                     todos,
                     fileSystem
@@ -611,6 +856,8 @@
             renderTodos();
             renderFiles('ojt');
             renderFiles('company');
+            renderProfile();
+            applyTheme();
             lucide.createIcons(); 
         }
 
@@ -620,6 +867,7 @@
             const subBtnClass = (id) => `w-full text-left px-4 py-2 rounded-lg transition-all font-medium text-sm whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
             
             nav.innerHTML = `
+                <button onclick="switchTab('profile')" class="${btnClass('profile')}"><i data-lucide="user" class="w-5 h-5 shrink-0"></i> Profile</button>
                 <button onclick="switchTab('dashboard')" class="${btnClass('dashboard')}"><i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i> Dashboard</button>
                 <button onclick="switchTab('logs')" class="${btnClass('logs')}"><i data-lucide="pen-tool" class="w-5 h-5 shrink-0"></i> Log Entry</button>
                 <button onclick="switchTab('todos')" class="${btnClass('todos')}"><i data-lucide="list-todo" class="w-5 h-5 shrink-0"></i> Task Board</button>
@@ -1009,8 +1257,138 @@
 
         window.deleteItem = (category, id) => { fileSystem[category].items = fileSystem[category].items.filter(i => i.id !== id); saveData(); updateUI(); };
 
+        // --- Profile and Theme Functions ---
+        function renderProfile() {
+            document.getElementById('profile-name').value = userProfile.name;
+            document.getElementById('profile-target-hours').value = userProfile.targetHours;
+            document.getElementById('profile-email').value = auth.currentUser?.email || '';
+            
+            // Update profile picture
+            const profilePic = document.getElementById('profile-picture');
+            profilePic.src = userProfile.profilePicture || 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile';
+            profilePic.onerror = () => {
+                profilePic.src = 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile';
+            };
+            
+            // Update theme selection
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.classList.toggle('ring-2', btn.dataset.theme === currentTheme);
+                btn.classList.toggle('ring-indigo-500', btn.dataset.theme === currentTheme);
+            });
+        }
+
+        window.saveProfile = async () => {
+            const name = document.getElementById('profile-name').value;
+            const targetHours = parseInt(document.getElementById('profile-target-hours').value);
+            
+            if(name.trim() && targetHours > 0) {
+                userProfile.name = name.trim();
+                userProfile.targetHours = targetHours;
+                await setDoc(doc(db, 'users', userId), { profile: userProfile, theme: currentTheme }, { merge: true });
+                updateUI();
+                showNotification('Profile updated successfully!');
+            } else {
+                showNotification('Please enter valid information.', 'error');
+            }
+        };
+
+        window.handleProfilePictureUpload = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please select a valid image file.', 'error');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Image size must be less than 5MB.', 'error');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const profilePic = document.getElementById('profile-picture');
+                profilePic.src = 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Uploading...';
+
+                // Create storage reference
+                const storageRef = ref(storage, `profile-pictures/${userId}/${Date.now()}_${file.name}`);
+                
+                // Upload file
+                const snapshot = await uploadBytes(storageRef, file);
+                
+                // Get download URL
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                
+                // Update profile
+                userProfile.profilePicture = downloadURL;
+                await setDoc(doc(db, 'users', userId), { profile: userProfile }, { merge: true });
+                
+                // Update UI
+                profilePic.src = downloadURL;
+                showNotification('Profile picture updated successfully!');
+                
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                showNotification('Failed to upload profile picture. Please try again.', 'error');
+                // Reset to current or default image
+                document.getElementById('profile-picture').src = userProfile.profilePicture || 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile';
+            }
+        };
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            const icon = notification.querySelector('i');
+            
+            notificationText.textContent = message;
+            
+            if (type === 'error') {
+                notification.classList.remove('bg-green-500');
+                notification.classList.add('bg-red-500');
+                icon.setAttribute('data-lucide', 'x-circle');
+            } else {
+                notification.classList.remove('bg-red-500');
+                notification.classList.add('bg-green-500');
+                icon.setAttribute('data-lucide', 'check-circle');
+            }
+            
+            // Re-render icons
+            lucide.createIcons();
+            
+            // Show notification
+            notification.classList.remove('translate-x-full');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        window.setTheme = async (theme) => {
+            currentTheme = theme;
+            await setDoc(doc(db, 'users', userId), { theme: currentTheme }, { merge: true });
+            applyTheme();
+            renderProfile();
+            showNotification(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`);
+        };
+
+        function applyTheme() {
+            document.body.className = `theme-${currentTheme}`;
+            // Update sidebar background
+            const sidebar = document.getElementById('sidebar');
+            if (currentTheme === 'dark') {
+                sidebar.classList.add('bg-slate-950');
+                sidebar.classList.remove('bg-slate-950'); // This will be overridden by theme classes
+            }
+            // The theme classes will handle the rest
+        }
+
         // Initial setup
         lucide.createIcons();
     </script>
 </body>
 </html>
+
