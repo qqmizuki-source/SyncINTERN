@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternFlow Dashboard</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for UI elements -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .tab-content { display: none !important; }
+        .tab-content.active:not(.grid) { display: block !important; animation: fadeIn 0.5s ease-out; }
+        .tab-content.active.grid { display: grid !important; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-950 p-6 flex flex-col hidden md:flex h-full flex-shrink-0">
+        <div class="mb-10">
+            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="target" class="text-indigo-500"></i>
+                InternFlow
+            </h1>
+            <p class="text-slate-500 text-sm mt-1">Apr - Jul 2026</p>
+        </div>
+        <nav class="flex-1 space-y-2" id="nav-menu"></nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto p-4 md:p-8">
+        <div class="max-w-6xl mx-auto space-y-6">
+
+            <!-- === DASHBOARD MODULE === -->
+            <section id="tab-dashboard" class="tab-content active space-y-6">
+                <!-- Progress Header -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex-1 w-full">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <i data-lucide="clock" class="w-6 h-6 text-indigo-600"></i>
+                                Total Hours Logged
+                            </span>
+                            <div class="text-right">
+                                <span class="text-indigo-600 font-black text-2xl"><span id="dash-total-hours">0</span> <span class="text-slate-400 text-lg font-medium">/ 480</span></span>
+                                <p class="text-slate-500 text-sm font-medium"><span id="dash-rem-hours">480</span> hours remaining to completion</p>
+                            </div>
+                        </div>
+                        <div class="h-4 bg-slate-100 rounded-full overflow-hidden mt-3">
+                            <div id="dash-progress" class="h-full bg-indigo-600 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Calendar View -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold flex items-center gap-2">
+                                <i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i>
+                                <span id="calendar-month-year">April 2026</span>
+                            </h2>
+                            <div class="flex gap-1">
+                                <button onclick="changeMonth(-1)" id="btn-prev-month" class="p-1 rounded-lg hover:bg-slate-100 disabled:opacity-30">
+                                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                                </button>
+                                <button onclick="changeMonth(1)" id="btn-next-month" class="p-1 rounded-lg hover:bg-slate-100 disabled:opacity-30">
+                                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+                            <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
+                        <div class="flex gap-4 mt-6 text-xs font-medium text-slate-500 justify-center">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Hours Logged</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Deadline</span>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Events -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[500px]">
+                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="bell" class="w-5 h-5 text-indigo-500"></i>
+                            Upcoming Deadlines
+                        </h2>
+                        <div id="upcoming-events" class="flex-1 overflow-y-auto pr-2 space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- === LOG ENTRY MODULE === -->
+            <section id="tab-logs" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col max-h-[700px]">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 flex-shrink-0">
+                        <i data-lucide="pen-tool" class="w-5 h-5 text-indigo-500"></i>
+                        <span id="log-form-title">New Log Entry</span>
+                    </h2>
+                    <form onsubmit="saveLogEntry(event)" class="flex-1 overflow-y-auto pr-2 space-y-5">
+                        <div class="sticky top-0 bg-white pb-2 z-10 border-b border-slate-100">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Log Date</label>
+                            <input type="date" id="log-date-input" min="2026-04-01" max="2026-07-31" required class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium" />
+                        </div>
+                        <div id="log-tasks-container" class="space-y-4"></div>
+                        <button type="button" onclick="addLogTaskRow()" class="w-full py-2.5 border-2 border-dashed border-slate-300 text-slate-600 rounded-xl hover:border-indigo-400 hover:text-indigo-600 font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add Another Task
+                        </button>
+                        <div class="pt-2 pb-4 flex gap-3">
+                            <button type="submit" id="log-submit-btn" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 font-bold transition-colors shadow-sm">
+                                Save Daily Entry
+                            </button>
+                            <button type="button" id="log-cancel-btn" onclick="cancelLogEdit()" class="hidden flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl hover:bg-slate-200 font-bold transition-colors shadow-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="lg:col-span-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[700px]">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 flex-shrink-0">
+                        <i data-lucide="file-text" class="w-5 h-5 text-indigo-500"></i>
+                        Log History
+                    </h2>
+                    <div id="log-history-list" class="flex-1 overflow-y-auto pr-2 space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- === TO-DO LIST MODULE === -->
+            <section id="tab-todos" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-md">
+                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            Quick Add Task
+                        </h2>
+                        <form onsubmit="addTodo(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-indigo-200 mb-1">Task Description</label>
+                                <textarea id="todo-text-input" required placeholder="What needs to be done?" rows="3" class="w-full px-4 py-2 bg-indigo-500/50 border border-indigo-400 rounded-lg placeholder-indigo-300 text-white focus:outline-none focus:ring-2 focus:ring-white text-sm resize-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-indigo-200 mb-1">Deadline</label>
+                                <input type="date" id="todo-date-input" required min="2026-04-01" max="2026-07-31" class="w-full px-4 py-2 bg-indigo-500/50 border border-indigo-400 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white text-sm [color-scheme:dark]" />
+                            </div>
+                            <button type="submit" class="w-full bg-white text-indigo-600 py-2.5 rounded-lg hover:bg-slate-100 font-bold transition-colors text-sm shadow-sm">
+                                Create Task
+                            </button>
+                        </form>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Pending</p>
+                            <p id="todo-pending-count" class="text-2xl font-black text-slate-800">0</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-400 uppercase">Completed</p>
+                            <p id="todo-completed-count" class="text-2xl font-black text-indigo-600">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[700px]">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 shrink-0">
+                        <i data-lucide="layout-list" class="w-5 h-5 text-indigo-500"></i>
+                        Task Board
+                    </h2>
+                    <div class="flex-1 overflow-y-auto pr-2">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pending Tasks</h3>
+                        <div id="todo-list-pending" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Completed Tasks</h3>
+                        <div id="todo-list-completed" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- === FILES MODULE === -->
+            <section id="tab-files-ojt" class="tab-content">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold flex items-center gap-2 text-indigo-700">
+                            <i data-lucide="folder" class="w-5 h-5"></i> OJT Requirements
+                        </h2>
+                        <button onclick="addFolder('ojt')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
+                            <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
+                        </button>
+                    </div>
+                    <div id="files-ojt-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
+                </div>
+            </section>
+
+            <section id="tab-files-company" class="tab-content">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold flex items-center gap-2 text-slate-700">
+                            <i data-lucide="folder" class="w-5 h-5"></i> Company Files
+                        </h2>
+                        <button onclick="addFolder('company')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
+                            <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
+                        </button>
+                    </div>
+                    <div id="files-company-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Logic (Firebase + App Logic) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- State ---
+        let activeTab = 'dashboard';
+        let isFilesMenuOpen = false;
+        const targetHours = 480;
+        let currentMonth = 3; 
+        const year = 2026;
+        let selectedDate = null;
+
+        // Empty arrays starting fresh (These will populate from cloud storage)
+        let logs = [];
+        let todos = [];
+        let fileSystem = {
+            ojt: { folders: [], items: [] },
+            company: { folders: [], items: [] }
+        };
+
+        let logFormTasks = [{ id: Date.now(), startTime: '', endTime: '', task: '', description: '' }];
+        let editingLogId = null;
+        let linkFormActive = { category: '', folderId: '' };
+
+        // --- Firebase Globals ---
+        let db, auth, userId, appId;
+        let isDataLoaded = false;
+
+        // --- Core Functions ---
+        function calculateDuration(start, end) {
+            if (!start || !end) return 0;
+            const [startH, startM] = start.split(':').map(Number);
+            const [endH, endM] = end.split(':').map(Number);
+            let diff = (endH + endM / 60) - (startH + startM / 60);
+            if (diff < 0) diff += 24;
+            return diff;
+        }
+
+        function getLogTotalHours(log) {
+            return log.tasks.reduce((sum, task) => sum + calculateDuration(task.startTime, task.endTime), 0);
+        }
+
+        // --- Firebase Integration ---
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+                const initAuth = async () => {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                };
+                initAuth();
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        loadData();
+                    }
+                });
+            } else {
+                updateUI(); // Fallback mode
+            }
+        } catch(e) {
+            console.warn("Firebase not initialized.", e);
+            updateUI();
+        }
+
+        function loadData() {
+            if (!userId || !db) return;
+            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'internflowData', 'state');
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    logs = data.logs || [];
+                    todos = data.todos || [];
+                    fileSystem = data.fileSystem || fileSystem;
+                }
+                isDataLoaded = true;
+                updateUI();
+            }, (error) => {
+                console.error("Error loading data:", error);
+                updateUI();
+            });
+        }
+
+        function saveData() {
+            if (!userId || !db) return;
+            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'internflowData', 'state');
+            setDoc(docRef, { logs, todos, fileSystem }).catch(error => console.error("Error saving data:", error));
+        }
+
+        // --- Render Functions ---
+        function updateUI() {
+            renderSidebar();
+            renderDashboard();
+            renderLogForm();
+            renderLogHistory();
+            renderTodos();
+            renderFiles('ojt');
+            renderFiles('company');
+            lucide.createIcons(); 
+        }
+
+        function renderSidebar() {
+            const nav = document.getElementById('nav-menu');
+            const btnClass = (id) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            const subBtnClass = (id) => `w-full text-left px-4 py-2 rounded-lg transition-all font-medium text-sm ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            
+            nav.innerHTML = `
+                <button onclick="switchTab('dashboard')" class="${btnClass('dashboard')}"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
+                <button onclick="switchTab('logs')" class="${btnClass('logs')}"><i data-lucide="pen-tool" class="w-5 h-5"></i> Log Entry</button>
+                <button onclick="switchTab('todos')" class="${btnClass('todos')}"><i data-lucide="list-todo" class="w-5 h-5"></i> Task Board</button>
+                <div>
+                    <button onclick="toggleFilesMenu()" class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium ${activeTab.startsWith('files') ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}">
+                        <div class="flex items-center gap-3"><i data-lucide="folder" class="w-5 h-5"></i> Files</div>
+                        <i data-lucide="${isFilesMenuOpen ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4"></i>
+                    </button>
+                    ${isFilesMenuOpen ? `
+                        <div class="ml-8 mt-2 space-y-1">
+                            <button onclick="switchTab('files-ojt')" class="${subBtnClass('files-ojt')}">OJT Requirements</button>
+                            <button onclick="switchTab('files-company')" class="${subBtnClass('files-company')}">Company Files</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            const totalHours = Math.round(logs.reduce((sum, log) => sum + getLogTotalHours(log), 0) * 100) / 100;
+            const remainingHours = Math.max(targetHours - totalHours, 0);
+            document.getElementById('dash-total-hours').innerText = totalHours;
+            document.getElementById('dash-rem-hours').innerText = remainingHours;
+            document.getElementById('dash-progress').style.width = `${Math.min((totalHours / targetHours) * 100, 100)}%`;
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('calendar-month-year').innerText = `${monthNames[currentMonth]} ${year}`;
+            document.getElementById('btn-prev-month').disabled = currentMonth === 3;
+            document.getElementById('btn-next-month').disabled = currentMonth === 6;
+
+            const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
+            const firstDay = new Date(year, currentMonth, 1).getDay();
+            
+            let calHtml = '';
+            for(let i=0; i<firstDay; i++) calHtml += `<div class="aspect-square"></div>`;
+            
+            for(let i=1; i<=daysInMonth; i++) {
+                const dateStr = `${year}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const hasLog = logs.some(l => l.date === dateStr);
+                const hasDeadline = todos.some(t => t.deadline === dateStr && !t.done);
+                const isSelected = selectedDate === dateStr;
+
+                calHtml += `
+                    <button onclick="selectDate('${dateStr}')" class="aspect-square flex flex-col items-center justify-center rounded-xl text-sm transition-all relative border border-transparent ${isSelected ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-50 hover:border-indigo-200 text-slate-700 font-medium'}">
+                        ${i}
+                        <div class="flex gap-1 absolute bottom-2">
+                            ${hasLog ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-indigo-200' : 'bg-indigo-500'}"></span>` : ''}
+                            ${hasDeadline ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-orange-400'}"></span>` : ''}
+                        </div>
+                    </button>
+                `;
+            }
+            document.getElementById('calendar-grid').innerHTML = calHtml;
+
+            const upcoming = todos.filter(t => !t.done && t.deadline).sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+            document.getElementById('upcoming-events').innerHTML = upcoming.length === 0 
+                ? `<p class="text-slate-400 text-sm text-center mt-10">No upcoming events!</p>`
+                : upcoming.map(e => `
+                    <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                        <div class="font-semibold text-slate-800 text-sm mb-1">${e.text}</div>
+                        <div class="flex items-center gap-2 text-xs text-orange-600 font-medium">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            ${new Date(e.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function renderLogForm() {
+            document.getElementById('log-form-title').innerText = editingLogId ? 'Edit Log Entry' : 'New Log Entry';
+            document.getElementById('log-submit-btn').innerText = editingLogId ? 'Update Entry' : 'Save Daily Entry';
+            document.getElementById('log-cancel-btn').classList.toggle('hidden', !editingLogId);
+
+            if(!document.getElementById('log-date-input').value) document.getElementById('log-date-input').value = '2026-04-08';
+
+            document.getElementById('log-tasks-container').innerHTML = logFormTasks.map((t, idx) => `
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl relative group">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Task ${idx + 1}</span>
+                        ${logFormTasks.length > 1 ? `<button type="button" onclick="removeLogTaskRow(${t.id})" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                    </div>
+                    <div class="flex gap-2 mb-3">
+                        <div class="flex-1"><label class="block text-xs font-semibold text-slate-500 mb-1">Start</label><input type="time" required value="${t.startTime}" onchange="updateLogTaskRow(${t.id}, 'startTime', this.value)" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg outline-none text-xs" /></div>
+                        <div class="flex-1"><label class="block text-xs font-semibold text-slate-500 mb-1">End</label><input type="time" required value="${t.endTime}" onchange="updateLogTaskRow(${t.id}, 'endTime', this.value)" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg outline-none text-xs" /></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Activity</label>
+                        <input type="text" required placeholder="What did you do?" value="${t.task}" onchange="updateLogTaskRow(${t.id}, 'task', this.value)" class="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Description</label>
+                        <textarea required placeholder="Brief details..." rows="2" onchange="updateLogTaskRow(${t.id}, 'description', this.value)" class="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none text-sm resize-none">${t.description}</textarea>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLogHistory() {
+            const list = document.getElementById('log-history-list');
+            if (logs.length === 0) {
+                list.innerHTML = `<p class="text-slate-400 text-center py-10">No hours logged yet.</p>`;
+                return;
+            }
+
+            const sortedLogs = [...logs].sort((a, b) => new Date(b.date) - new Date(a.date));
+            list.innerHTML = sortedLogs.map(log => `
+                <div class="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-indigo-50 p-2 rounded-lg text-indigo-600"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+                            <div>
+                                <div class="font-bold text-slate-800">${new Date(log.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric'})}</div>
+                                <div class="text-xs font-bold text-indigo-600">${getLogTotalHours(log).toFixed(2)} hrs total</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="editLog(${log.id})" class="text-slate-300 hover:text-indigo-500 p-2"><i data-lucide="pencil" class="w-5 h-5"></i></button>
+                            <button onclick="deleteLog(${log.id})" class="text-slate-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+                    <div class="space-y-4 pt-1">
+                        ${log.tasks.map(task => `
+                            <div class="flex gap-4 group relative">
+                                <div class="text-xs font-bold text-slate-500 w-28 flex-shrink-0 pt-0.5 flex flex-col">
+                                    <span>${task.startTime}</span><span class="text-slate-300">to</span><span>${task.endTime}</span>
+                                    <span class="text-indigo-400 mt-1">${calculateDuration(task.startTime, task.endTime).toFixed(1)}h</span>
+                                </div>
+                                <div class="flex-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <p class="font-bold text-slate-800 text-sm">${task.task}</p>
+                                    <p class="text-sm text-slate-600 mt-1">${task.description}</p>
+                                </div>
+                                <button onclick="deleteTaskFromLog(${log.id}, ${task.id})" class="absolute -right-2 -top-2 bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 shadow-sm border border-slate-100 transition-all">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTodos() {
+            const pendingList = document.getElementById('todo-list-pending');
+            const completedList = document.getElementById('todo-list-completed');
+            
+            const pending = todos.filter(t => !t.done).sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+            const completed = todos.filter(t => t.done).sort((a,b) => new Date(b.deadline) - new Date(a.deadline));
+            
+            document.getElementById('todo-pending-count').innerText = pending.length;
+            document.getElementById('todo-completed-count').innerText = completed.length;
+
+            if(pending.length === 0) {
+                pendingList.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 bg-slate-50 border border-dashed border-slate-200 rounded-xl">No pending tasks! You're all caught up.</div>`;
+            } else {
+                pendingList.innerHTML = pending.map(todo => `
+                    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow relative group border-l-4 border-l-orange-400 flex flex-col justify-between min-h-[120px]">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-slate-700 text-sm pr-6 leading-tight">${todo.text}</span>
+                            <button onclick="deleteTodo(${todo.id})" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="flex justify-between items-end mt-auto pt-4">
+                            <span class="text-xs font-bold px-2 py-1 bg-orange-50 text-orange-600 rounded-md flex items-center gap-1">
+                                <i data-lucide="calendar" class="w-3 h-3"></i> ${new Date(todo.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric'})}
+                            </span>
+                            <button onclick="toggleTodo(${todo.id})" class="text-slate-300 hover:text-green-500 transition-colors" title="Mark as Done">
+                                <i data-lucide="circle" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if(completed.length === 0) {
+                completedList.innerHTML = `<div class="p-4 text-center text-slate-400 text-sm">No completed tasks yet.</div>`;
+            } else {
+                completedList.innerHTML = completed.map(todo => `
+                    <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg group">
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleTodo(${todo.id})" class="text-green-500 hover:text-green-600 shrink-0">
+                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            </button>
+                            <div>
+                                <span class="line-through text-slate-400 text-sm font-medium">${todo.text}</span>
+                            </div>
+                        </div>
+                        <button onclick="deleteTodo(${todo.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderFiles(category) {
+            const container = document.getElementById(`files-${category}-content`);
+            const data = fileSystem[category];
+
+            if(data.folders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
+                        <i data-lucide="folder" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+                        <p class="text-slate-500 font-medium">No folders created yet.</p>
+                        <button onclick="addFolder('${category}')" class="mt-2 text-sm text-indigo-600 font-bold hover:underline">Create your first folder</button>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = data.folders.map(folder => `
+                <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="bg-slate-100 px-4 py-3 flex justify-between items-center border-b border-slate-200">
+                        <h3 class="font-bold text-slate-700 flex items-center gap-2"><i data-lucide="folder" class="w-4 h-4 text-indigo-500"></i> ${folder.name}</h3>
+                        <div class="flex gap-2">
+                            <button onclick="showLinkForm('${category}', '${folder.id}')" class="text-xs bg-white border border-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 flex items-center gap-1 font-semibold shadow-sm"><i data-lucide="link" class="w-3 h-3"></i> Link</button>
+                            <button onclick="addFile('${category}', '${folder.id}')" class="text-xs bg-white border border-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 flex items-center gap-1 font-semibold shadow-sm"><i data-lucide="upload" class="w-3 h-3"></i> File</button>
+                            <button onclick="deleteFolder('${category}', '${folder.id}')" class="text-slate-400 hover:text-red-500 p-1.5 ml-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div class="p-3 space-y-2">
+                        ${linkFormActive.category === category && linkFormActive.folderId === folder.id ? `
+                            <form onsubmit="submitLinkForm(event)" class="flex flex-col md:flex-row gap-3 bg-white p-4 rounded-lg border border-indigo-200 shadow-sm mb-3">
+                                <input type="text" id="lf-name" required placeholder="Name (e.g. Med Cert)" class="flex-1 px-3 py-2 border border-slate-200 rounded-md text-sm outline-none" />
+                                <input type="url" id="lf-url" required placeholder="https://drive.google.com/..." class="flex-1 px-3 py-2 border border-slate-200 rounded-md text-sm outline-none" />
+                                <div class="flex gap-2 justify-end">
+                                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700">Add</button>
+                                    <button type="button" onclick="cancelLinkForm()" class="text-slate-500 hover:bg-slate-100 rounded-md px-3 py-2 text-sm font-semibold">Cancel</button>
+                                </div>
+                            </form>
+                        ` : ''}
+                        
+                        ${data.items.filter(i => i.folderId === folder.id).length === 0 && !(linkFormActive.category === category && linkFormActive.folderId === folder.id) 
+                            ? `<p class="text-sm text-slate-400 text-center py-4">This folder is empty.</p>` 
+                            : data.items.filter(i => i.folderId === folder.id).map(item => `
+                                <div class="flex justify-between items-center p-3 bg-white border border-slate-100 rounded-lg group hover:border-indigo-300 shadow-sm">
+                                    <div class="flex items-center gap-4 w-full pr-4">
+                                        ${item.type === 'link' ? `<div class="p-2 bg-indigo-50 rounded-lg text-indigo-500 shrink-0"><i data-lucide="external-link" class="w-5 h-5"></i></div>` : `<i data-lucide="file-text" class="w-6 h-6 text-slate-400 shrink-0 ml-1"></i>`}
+                                        <div class="min-w-0">
+                                            ${item.type === 'link' 
+                                                ? `<a href="${item.url}" target="_blank" class="block text-sm font-bold text-slate-800 hover:text-indigo-600 hover:underline truncate">${item.name}</a><p class="text-[11px] text-slate-400 truncate w-full mt-0.5">${item.url}</p>`
+                                                : `<p class="text-sm font-semibold text-slate-700 truncate">${item.name}</p><p class="text-[11px] text-slate-400 mt-0.5">Added: ${item.date}</p>`}
+                                        </div>
+                                    </div>
+                                    <button onclick="deleteItem('${category}', ${item.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 p-2 shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                </div>
+                            `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- Attach Functions to Window (Required for HTML event handlers) ---
+        window.switchTab = (tabId) => {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            updateUI();
+        };
+
+        window.toggleFilesMenu = () => { isFilesMenuOpen = !isFilesMenuOpen; updateUI(); };
+        window.changeMonth = (delta) => { currentMonth += delta; if(currentMonth < 3) currentMonth = 3; if(currentMonth > 6) currentMonth = 6; updateUI(); };
+        window.selectDate = (date) => { selectedDate = selectedDate === date ? null : date; updateUI(); };
+
+        window.updateLogTaskRow = (id, field, value) => { const task = logFormTasks.find(t => t.id === id); if(task) task[field] = value; };
+        window.addLogTaskRow = () => { logFormTasks.push({ id: Date.now(), startTime: '', endTime: '', task: '', description: '' }); updateUI(); };
+        window.removeLogTaskRow = (id) => { if(logFormTasks.length > 1) { logFormTasks = logFormTasks.filter(t => t.id !== id); updateUI(); } };
+
+        window.saveLogEntry = (e) => {
+            e.preventDefault();
+            const dateInput = document.getElementById('log-date-input').value;
+            const validTasks = logFormTasks.filter(t => t.task.trim() && t.startTime && t.endTime);
+            if(validTasks.length === 0) return;
+
+            if (editingLogId) {
+                const log = logs.find(l => l.id === editingLogId);
+                if(log) { log.date = dateInput; log.tasks = validTasks; }
+                editingLogId = null;
+            } else {
+                const existing = logs.find(l => l.date === dateInput);
+                if (existing) {
+                    existing.tasks.push(...validTasks.map(t => ({...t, id: Date.now() + Math.random()})));
+                } else {
+                    logs.push({ id: Date.now(), date: dateInput, tasks: validTasks.map(t => ({...t, id: Date.now() + Math.random()})) });
+                }
+            }
+            logFormTasks = [{ id: Date.now(), startTime: '', endTime: '', task: '', description: '' }];
+            saveData();
+            updateUI();
+        };
+
+        window.editLog = (id) => {
+            const log = logs.find(l => l.id === id);
+            if(log) {
+                editingLogId = id;
+                document.getElementById('log-date-input').value = log.date;
+                logFormTasks = JSON.parse(JSON.stringify(log.tasks)); 
+                updateUI();
+                document.getElementById('log-date-input').focus();
+            }
+        };
+
+        window.cancelLogEdit = () => { editingLogId = null; logFormTasks = [{ id: Date.now(), startTime: '', endTime: '', task: '', description: '' }]; updateUI(); };
+        window.deleteLog = (id) => { logs = logs.filter(l => l.id !== id); saveData(); updateUI(); };
+        
+        window.deleteTaskFromLog = (logId, taskId) => {
+            const log = logs.find(l => l.id === logId);
+            if(log) {
+                log.tasks = log.tasks.filter(t => t.id !== taskId);
+                if(log.tasks.length === 0) logs = logs.filter(l => l.id !== logId);
+                saveData();
+                updateUI();
+            }
+        };
+
+        window.addTodo = (e) => {
+            e.preventDefault();
+            const text = document.getElementById('todo-text-input').value;
+            const date = document.getElementById('todo-date-input').value;
+            if(text.trim()) {
+                todos.push({ id: Date.now(), text: text.trim(), deadline: date, done: false });
+                document.getElementById('todo-text-input').value = '';
+                saveData();
+                updateUI();
+            }
+        };
+
+        window.toggleTodo = (id) => { const todo = todos.find(t => t.id === id); if(todo) { todo.done = !todo.done; saveData(); updateUI(); } };
+        window.deleteTodo = (id) => { todos = todos.filter(t => t.id !== id); saveData(); updateUI(); };
+
+        window.addFolder = (category) => {
+            const name = prompt("Enter new folder name:");
+            if(name && name.trim()) { fileSystem[category].folders.push({ id: 'f-' + Date.now(), name: name.trim() }); saveData(); updateUI(); }
+        };
+
+        window.deleteFolder = (category, folderId) => {
+            if(confirm("Delete this folder and all contents?")) {
+                fileSystem[category].folders = fileSystem[category].folders.filter(f => f.id !== folderId);
+                fileSystem[category].items = fileSystem[category].items.filter(i => i.folderId !== folderId);
+                saveData(); updateUI();
+            }
+        };
+
+        window.addFile = (category, folderId) => {
+            const name = prompt("Enter mock file name to upload:");
+            if(name && name.trim()) { fileSystem[category].items.push({ id: Date.now(), folderId, type: 'file', name: name.trim(), date: new Date().toISOString().split('T')[0] }); saveData(); updateUI(); }
+        };
+
+        window.showLinkForm = (category, folderId) => { linkFormActive = { category, folderId }; updateUI(); };
+        window.cancelLinkForm = () => { linkFormActive = { category: '', folderId: '' }; updateUI(); };
+        
+        window.submitLinkForm = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('lf-name').value;
+            const url = document.getElementById('lf-url').value;
+            if(name.trim() && url.trim()) {
+                fileSystem[linkFormActive.category].items.push({ id: Date.now(), folderId: linkFormActive.folderId, type: 'link', name: name.trim(), url: url.trim() });
+                cancelLinkForm(); saveData();
+            }
+        };
+
+        window.deleteItem = (category, id) => { fileSystem[category].items = fileSystem[category].items.filter(i => i.id !== id); saveData(); updateUI(); };
+
+        // Initial render fallback (will be overwritten when data loads)
+        window.onload = () => { updateUI(); };
+    </script>
+</body>
+</html>
