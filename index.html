@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InternFlow Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playwrite+IE:wght@100..400&display=swap" rel="stylesheet">
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons for UI elements -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        .font-playwrite { font-family: 'Playwrite IE', cursive; }
         .tab-content { display: none !important; }
         .tab-content.active:not(.grid) { display: block !important; animation: fadeIn 0.5s ease-out; }
         .tab-content.active.grid { display: grid !important; animation: fadeIn 0.5s ease-out; }
@@ -28,6 +33,33 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Background Image Effects */
+        #topbar {
+            position: relative;
+        }
+        #topbar > * {
+            position: relative;
+            z-index: 1; /* Ensure content is above the pseudo-element */
+        }
+        #topbar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 0; /* Behind the content, but inside topbar */
+            transition: opacity 0.3s, filter 0.3s;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: -1; /* Behind everything */
+            transition: opacity 0.3s, filter 0.3s;
+        }
         
         /* Theme Styles */
         .theme-white { background-color: #ffffff; color: #334155; }
@@ -184,6 +216,18 @@
         <p class="text-slate-500 font-medium text-sm animate-pulse">Syncing your data...</p>
     </div>
 
+    <!-- === WELCOME OVERLAY === -->
+    <div id="welcome-overlay" class="fixed inset-0 backdrop-blur-lg flex flex-col items-center justify-center z-[99] opacity-0 pointer-events-none transition-opacity duration-1000">
+        <div class="text-center text-slate-900 max-w-md mx-4">
+            <i data-lucide="target" class="w-16 h-16 mb-4 animate-bounce text-indigo-400"></i>
+            <h1 class="text-3xl font-bold mb-2">Welcome to InternFlow</h1>
+            <p id="welcome-message" class="text-xl mb-4">Welcome, Intern!</p>
+            <blockquote class="text-lg italic opacity-90 border-l-4 border-indigo-400 pl-4">
+                "The only way to do great work is to love what you do." - Steve Jobs
+            </blockquote>
+        </div>
+    </div>
+
     <!-- === LOGIN / AUTH SCREEN === -->
     <div id="auth-screen" class="hidden fixed inset-0 bg-slate-100 flex items-center justify-center z-50">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
@@ -273,44 +317,53 @@
     </div>
 
     <!-- === MAIN APP (Hidden until logged in) === -->
-    <div id="app-container" class="hidden h-screen w-full relative overflow-hidden">
+    <div id="app-container" class="hidden h-screen w-full relative overflow-hidden flex-col">
         
-        <!-- Mobile Overlay -->
-        <div id="mobile-overlay" onclick="toggleSidebar()" class="absolute inset-0 bg-slate-900/40 z-40 transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"></div>
+        <!-- Topbar Navigation -->
+        <nav id="topbar" class="w-full bg-slate-950 px-4 md:px-6 py-3 flex items-center justify-between flex-shrink-0 z-50 shadow-md">
+            <!-- Left: Logo -->
+            <div class="flex items-center gap-2 md:gap-4 shrink-0">
+                <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i data-lucide="target" class="text-indigo-500 shrink-0"></i>
+                    <span class="hidden sm:inline">InternFlow</span>
+                </h1>
+            </div>
+            
+            <!-- Middle: Nav Links (Desktop) -->
+            <div class="hidden md:flex flex-1 justify-center space-x-1 overflow-x-auto px-4" id="nav-menu"></div>
+            
+            <!-- Right: Profile, Settings, Logout -->
+            <div class="flex items-center gap-3 md:gap-4 shrink-0">
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white p-2 outline-none">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
 
-        <!-- Floating Hamburger Toggle Button -->
-        <button onclick="toggleSidebar()" id="open-sidebar-btn" class="absolute top-4 left-4 md:top-6 md:left-6 z-40 p-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-md hover:bg-slate-50 transition-all duration-300 outline-none flex items-center justify-center opacity-0 pointer-events-none scale-90">
-            <i data-lucide="menu" class="w-5 h-5"></i>
-        </button>
+                <!-- Settings Logo -->
+                <button onclick="switchTab('settings')" class="text-slate-400 hover:text-white transition-colors p-1" title="Theme Settings">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
 
-        <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="w-64 bg-slate-950 p-6 flex flex-col h-full flex-shrink-0 z-50 transition-all duration-300 absolute md:relative shadow-2xl md:shadow-none" style="transform: translateX(-100%);">
-            <div class="mb-10 flex justify-between items-start">
-                <div class="overflow-hidden whitespace-nowrap">
-                    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                        <i data-lucide="target" class="text-indigo-500 shrink-0"></i>
-                        InternFlow
-                    </h1>
-                    <p class="text-slate-500 text-sm mt-1">Apr - Jul 2026</p>
-                </div>
-                <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-1.5 bg-slate-800 rounded-lg transition-colors outline-none shrink-0" title="Collapse Sidebar">
-                    <i data-lucide="panel-left-close" class="w-5 h-5"></i>
+                <!-- Profile Picture -->
+                <button onclick="switchTab('profile')" class="rounded-full border-2 border-transparent hover:border-indigo-400 transition-colors focus:outline-none overflow-hidden" title="Profile">
+                    <img id="topbar-profile-picture" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e" alt="Profile" class="w-9 h-9 object-cover" onerror="this.src='data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e'">
+                </button>
+                
+                <button onclick="handleLogout()" class="text-red-400 hover:text-red-500 transition-colors p-1" title="Logout">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </div>
-            <nav class="flex-1 space-y-2 overflow-y-auto overflow-x-hidden" id="nav-menu"></nav>
-            
-            <!-- Logout Button -->
-            <button onclick="handleLogout()" class="mt-4 w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-red-400 hover:bg-red-500/10 hover:text-red-500">
-                <i data-lucide="log-out" class="w-5 h-5 shrink-0"></i> Logout
-            </button>
-        </aside>
+        </nav>
+        
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-nav-menu" class="hidden md:hidden bg-slate-900 w-full flex-col px-4 py-3 space-y-2 shadow-inner z-40 absolute top-14 left-0"></div>
 
         <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 h-full overflow-y-auto p-4 pt-20 md:pt-8 md:p-8 w-full transition-all duration-300">
+        <main id="main-content" class="flex-1 h-full overflow-y-auto p-4 md:p-8 w-full transition-all duration-300">
             <div class="max-w-6xl mx-auto space-y-6">
 
                 <!-- === DASHBOARD MODULE === -->
-                <section id="tab-dashboard" class="tab-content active space-y-6">
+                <section id="tab-dashboard" class="tab-content space-y-6">
                     <!-- Progress Header -->
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-6">
                         <div class="flex-1 w-full">
@@ -357,13 +410,32 @@
                             </div>
                         </div>
 
-                        <!-- Upcoming Events -->
-                        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[500px]">
-                            <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                                <i data-lucide="bell" class="w-5 h-5 text-indigo-500"></i>
-                                Upcoming Deadlines
-                            </h2>
-                            <div id="upcoming-events" class="flex-1 overflow-y-auto pr-2 space-y-3"></div>
+                        <!-- Right Column -->
+                        <div class="flex flex-col gap-6">
+                            <!-- Upcoming Events -->
+                            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-[300px]">
+                                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                                    <i data-lucide="bell" class="w-5 h-5 text-indigo-500"></i>
+                                    Upcoming Deadlines
+                                </h2>
+                                <div id="upcoming-events" class="flex-1 overflow-y-auto pr-2 space-y-3"></div>
+                            </div>
+                            
+                            <!-- Bible Verse of the Day -->
+                            <div class="bg-indigo-600 rounded-2xl p-6 shadow-md text-white flex flex-col relative overflow-hidden flex-1 min-h-[176px]">
+                                <div class="absolute -right-4 -top-4 opacity-10 pointer-events-none">
+                                    <i data-lucide="book-open" class="w-32 h-32"></i>
+                                </div>
+                                <div class="flex-1 z-10 relative w-full flex flex-col justify-center">
+                                    <h2 class="text-sm font-bold text-indigo-200 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                        <i data-lucide="book-open" class="w-4 h-4"></i> Verse of the Day
+                                    </h2>
+                                    <blockquote class="text-base font-medium italic mb-2 leading-relaxed" id="votd-text">
+                                        "Loading verse..."
+                                    </blockquote>
+                                    <p class="text-xs font-bold text-indigo-200 text-right mt-auto" id="votd-reference">-</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -450,35 +522,6 @@
                     </div>
                 </section>
 
-                <!-- === FILES MODULE === -->
-                <section id="tab-files-ojt" class="tab-content">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-bold flex items-center gap-2 text-indigo-700">
-                                <i data-lucide="folder" class="w-5 h-5"></i> OJT Requirements
-                            </h2>
-                            <button onclick="addFolder('ojt')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
-                                <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
-                            </button>
-                        </div>
-                        <div id="files-ojt-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
-                    </div>
-                </section>
-
-                <section id="tab-files-company" class="tab-content">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-bold flex items-center gap-2 text-slate-700">
-                                <i data-lucide="folder" class="w-5 h-5"></i> Company Files
-                            </h2>
-                            <button onclick="addFolder('company')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
-                                <i data-lucide="folder-plus" class="w-4 h-4"></i> Add Folder
-                            </button>
-                        </div>
-                        <div id="files-company-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
-                    </div>
-                </section>
-
                 <!-- === PROFILE MODULE === -->
                 <section id="tab-profile" class="tab-content">
                     <div class="max-w-4xl mx-auto space-y-6">
@@ -490,7 +533,7 @@
                             </h2>
                             <div class="flex flex-col items-center space-y-4">
                                 <div class="relative">
-                                    <img id="profile-picture" src="https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100">
+                                    <img id="profile-picture" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100" onerror="this.src='data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e'">
                                     <button onclick="document.getElementById('profile-pic-input').click()" class="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition-colors">
                                         <i data-lucide="camera" class="w-4 h-4"></i>
                                     </button>
@@ -519,12 +562,23 @@
                                     <label class="block text-sm font-bold text-slate-600 mb-2">Email</label>
                                     <input type="email" id="profile-email" readonly class="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed">
                                 </div>
-                                <button onclick="saveProfile()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-bold transition-colors">
-                                    Save Changes
-                                </button>
+                                <div class="flex gap-3">
+                                    <button id="profile-revert-btn" onclick="revertProfileChanges()" class="hidden flex-1 bg-slate-100 text-slate-600 px-6 py-2 rounded-lg hover:bg-slate-200 font-bold transition-colors">
+                                        Revert Changes
+                                    </button>
+                                    <button onclick="saveProfile()" class="flex-1 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-bold transition-colors">
+                                        Save Changes
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
+                    </div>
+                </section>
+
+                <!-- === SETTINGS MODULE === -->
+                <section id="tab-settings" class="tab-content">
+                    <div class="max-w-4xl mx-auto space-y-6">
                         <!-- Theme Settings -->
                         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                             <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
@@ -553,13 +607,189 @@
                                     <span class="text-sm font-medium text-slate-700">Yellow</span>
                                 </button>
                             </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid gap-3 md:grid-cols-2">
+                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                        <div class="flex items-start justify-between gap-4 mb-3">
+                                            <div>
+                                                <p class="text-sm font-semibold text-slate-800">Navigator Background</p>
+                                                <p class="text-xs text-slate-500">Upload an image for the top navigation bar.</p>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" onclick="document.getElementById('nav-bg-input').click()" class="text-xs bg-white border border-slate-300 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-100">Upload</button>
+                                                <button type="button" onclick="clearThemeBackground('nav')" class="text-xs bg-rose-50 text-rose-600 px-3 py-2 rounded-lg hover:bg-rose-100">Clear</button>
+                                            </div>
+                                        </div>
+                                        <div id="nav-bg-preview" class="h-20 rounded-xl border border-slate-200 bg-cover bg-center bg-slate-100 flex items-center justify-center text-slate-400 text-xs">No image selected</div>
+                                        <div class="mt-3 space-y-3">
+                                            <div>
+                                                <label class="text-xs font-semibold text-slate-600 flex justify-between"><span>Opacity</span><span id="nav-opacity-value">100%</span></label>
+                                                <input type="range" id="nav-bg-opacity" min="0" max="1" step="0.05" value="1" oninput="updateBackgroundEffect('nav', 'opacity', this.value, false)" onchange="updateBackgroundEffect('nav', 'opacity', this.value, true)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                            </div>
+                                            <div>
+                                                <label class="text-xs font-semibold text-slate-600 flex justify-between"><span>Blur</span><span id="nav-blur-value">0px</span></label>
+                                                <input type="range" id="nav-bg-blur" min="0" max="20" step="1" value="0" oninput="updateBackgroundEffect('nav', 'blur', this.value, false)" onchange="updateBackgroundEffect('nav', 'blur', this.value, true)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                        <div class="flex items-start justify-between gap-4 mb-3">
+                                            <div>
+                                                <p class="text-sm font-semibold text-slate-800">Page Background</p>
+                                                <p class="text-xs text-slate-500">Upload an image for the main page background.</p>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" onclick="document.getElementById('page-bg-input').click()" class="text-xs bg-white border border-slate-300 text-slate-600 px-3 py-2 rounded-lg hover:bg-slate-100">Upload</button>
+                                                <button type="button" onclick="clearThemeBackground('page')" class="text-xs bg-rose-50 text-rose-600 px-3 py-2 rounded-lg hover:bg-rose-100">Clear</button>
+                                            </div>
+                                        </div>
+                                        <div id="page-bg-preview" class="h-20 rounded-xl border border-slate-200 bg-cover bg-center bg-slate-100 flex items-center justify-center text-slate-400 text-xs">No image selected</div>
+                                        <div class="mt-3 space-y-3">
+                                            <div>
+                                                <label class="text-xs font-semibold text-slate-600 flex justify-between"><span>Opacity</span><span id="page-opacity-value">100%</span></label>
+                                                <input type="range" id="page-bg-opacity" min="0" max="1" step="0.05" value="1" oninput="updateBackgroundEffect('page', 'opacity', this.value, false)" onchange="updateBackgroundEffect('page', 'opacity', this.value, true)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                            </div>
+                                            <div>
+                                                <label class="text-xs font-semibold text-slate-600 flex justify-between"><span>Blur</span><span id="page-blur-value">0px</span></label>
+                                                <input type="range" id="page-bg-blur" min="0" max="20" step="1" value="0" oninput="updateBackgroundEffect('page', 'blur', this.value, false)" onchange="updateBackgroundEffect('page', 'blur', this.value, true)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end gap-3">
+                                <button onclick="showResetThemeConfirmation()" class="bg-slate-100 text-slate-700 px-6 py-2 rounded-lg hover:bg-slate-200 transition-colors font-medium">Reset to Defaults</button>
+                            </div>
                         </div>
                     </div>
+                </section>
 
+                <!-- === FILES MODULE === -->
+                <section id="tab-files-ojt" class="tab-content">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
+                        <div class="flex flex-col gap-4 mb-6">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                <h2 class="text-lg font-bold flex items-center gap-2 text-indigo-700">
+                                    <i data-lucide="folder" class="w-5 h-5"></i> OJT Requirements
+                                </h2>
+                                <div class="flex gap-2">
+                                    <button onclick="addFolder('ojt')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
+                                        <i data-lucide="folder-plus" class="w-4 h-4"></i> Create Folder
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3">
+                                <input id="new-folder-name-ojt" type="text" placeholder="Folder name" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                                <input id="new-folder-color-ojt" type="hidden" value="indigo" />
+                                <div id="folder-color-options-ojt" class="flex items-center gap-2">
+                                    <button type="button" onclick="setFolderColor('ojt','indigo')" data-color="indigo" class="w-9 h-9 rounded-full bg-indigo-500 ring-2 ring-indigo-500 shadow-sm transition-transform transform scale-105" aria-label="Indigo"></button>
+                                    <button type="button" onclick="setFolderColor('ojt','green')" data-color="green" class="w-9 h-9 rounded-full bg-emerald-500 shadow-sm transition-transform hover:scale-110" aria-label="Green"></button>
+                                    <button type="button" onclick="setFolderColor('ojt','orange')" data-color="orange" class="w-9 h-9 rounded-full bg-orange-500 shadow-sm transition-transform hover:scale-110" aria-label="Orange"></button>
+                                    <button type="button" onclick="setFolderColor('ojt','rose')" data-color="rose" class="w-9 h-9 rounded-full bg-rose-500 shadow-sm transition-transform hover:scale-110" aria-label="Rose"></button>
+                                    <button type="button" onclick="setFolderColor('ojt','sky')" data-color="sky" class="w-9 h-9 rounded-full bg-sky-500 shadow-sm transition-transform hover:scale-110" aria-label="Sky"></button>
+                                </div>
+                                <p class="text-sm text-slate-500">Pick a folder color above. Indigo is selected by default.</p>
+                            </div>
+                        </div>
+                        <div id="files-ojt-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
+                    </div>
+                </section>
+
+                <section id="tab-files-company" class="tab-content">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col min-h-[600px]">
+                        <div class="flex flex-col gap-4 mb-6">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                <h2 class="text-lg font-bold flex items-center gap-2 text-slate-700">
+                                    <i data-lucide="folder" class="w-5 h-5"></i> Company Files
+                                </h2>
+                                <div class="flex gap-2">
+                                    <button onclick="addFolder('company')" class="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
+                                        <i data-lucide="folder-plus" class="w-4 h-4"></i> Create Folder
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3">
+                                <input id="new-folder-name-company" type="text" placeholder="Folder name" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                                <input id="new-folder-color-company" type="hidden" value="indigo" />
+                                <div id="folder-color-options-company" class="flex items-center gap-2">
+                                    <button type="button" onclick="setFolderColor('company','indigo')" data-color="indigo" class="w-9 h-9 rounded-full bg-indigo-500 ring-2 ring-indigo-500 shadow-sm transition-transform transform scale-105" aria-label="Indigo"></button>
+                                    <button type="button" onclick="setFolderColor('company','green')" data-color="green" class="w-9 h-9 rounded-full bg-emerald-500 shadow-sm transition-transform hover:scale-110" aria-label="Green"></button>
+                                    <button type="button" onclick="setFolderColor('company','orange')" data-color="orange" class="w-9 h-9 rounded-full bg-orange-500 shadow-sm transition-transform hover:scale-110" aria-label="Orange"></button>
+                                    <button type="button" onclick="setFolderColor('company','rose')" data-color="rose" class="w-9 h-9 rounded-full bg-rose-500 shadow-sm transition-transform hover:scale-110" aria-label="Rose"></button>
+                                    <button type="button" onclick="setFolderColor('company','sky')" data-color="sky" class="w-9 h-9 rounded-full bg-sky-500 shadow-sm transition-transform hover:scale-110" aria-label="Sky"></button>
+                                </div>
+                                <p class="text-sm text-slate-500">Pick a folder color above. Indigo is selected by default.</p>
+                            </div>
+                        </div>
+                        <div id="files-company-content" class="flex-1 overflow-y-auto space-y-5 pr-2"></div>
+                    </div>
                 </section>
 
             </div>
         </main>
+    </div>
+
+
+
+    <input type="file" id="nav-bg-input" class="hidden" accept="image/*" onchange="handleBackgroundUpload(event, 'nav')">
+    <input type="file" id="page-bg-input" class="hidden" accept="image/*" onchange="handleBackgroundUpload(event, 'page')">
+
+    <!-- Centered Notification Modal -->
+    <div id="notification-modal" onclick="closeNotificationModal()" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] hidden">
+        <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl transform transition-all duration-300 scale-95 opacity-0" id="notification-modal-content" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <div id="notification-icon" class="mx-auto mb-4 w-12 h-12 rounded-full flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2" id="notification-title">Success!</h3>
+                <p class="text-slate-600" id="notification-message">Profile updated successfully!</p>
+                <button onclick="closeNotificationModal()" class="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-bold transition-colors">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Changes Confirmation Modal -->
+    <div id="profile-confirm-modal" onclick="closeProfileConfirmModal()" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] hidden">
+        <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl transform transition-all duration-300 scale-95 opacity-0" id="profile-confirm-modal-content" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-500"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Unsaved Changes</h3>
+                <p class="text-slate-600 mb-6">You have unsaved changes in your profile. Do you want to save them before leaving?</p>
+                <div class="flex gap-3">
+                    <button onclick="discardProfileChanges()" class="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg hover:bg-slate-200 font-bold transition-colors">
+                        Discard
+                    </button>
+                    <button onclick="saveProfileAndSwitch()" class="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 font-bold transition-colors">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Reset Confirmation Modal -->
+    <div id="theme-reset-confirm-modal" onclick="closeThemeResetConfirmModal()" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] hidden">
+        <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl transform transition-all duration-300 scale-95 opacity-0" id="theme-reset-confirm-modal-content" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center">
+                    <i data-lucide="rotate-ccw" class="w-8 h-8 text-rose-500"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Reset Theme Settings</h3>
+                <p class="text-slate-600 mb-6">This will reset the color theme, backgrounds, and all effects to their default values. Are you sure?</p>
+                <div class="flex gap-3">
+                    <button onclick="closeThemeResetConfirmModal()" class="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg hover:bg-slate-200 font-bold transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="confirmResetTheme()" class="flex-1 bg-rose-600 text-white py-2 rounded-lg hover:bg-rose-700 font-bold transition-colors">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript Logic (Firebase Auth & Cloud Storage) -->
@@ -567,12 +797,24 @@
         // Import Firebase Functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // ==========================================
         // ✅ YOUR FIREBASE CONFIGURATION 
         // ==========================================
+        // IMPORTANT: For profile picture and background uploads to work, make sure your Firebase Storage rules allow authenticated users to upload:
+        // rules_version = '2';
+        // service firebase.storage {
+        //   match /b/{bucket}/o {
+        //     match /profile-pictures/{userId}/{allPaths=**} {
+        //       allow read, write: if request.auth != null && request.auth.uid == userId;
+        //     }
+        //     match /backgrounds/{userId}/{allPaths=**} {
+        //       allow read, write: if request.auth != null && request.auth.uid == userId;
+        //     }
+        //   }
+        // }
         const firebaseConfig = {
             apiKey: "AIzaSyBPIdaT9M7_a3i2CKVOWZX6SWnrhZ1TDyk",
             authDomain: "internsync-cf6fd.firebaseapp.com",
@@ -582,6 +824,11 @@
             appId: "1:965590153883:web:76fc29d737b232ad97643e",
             measurementId: "G-J7BCD2M80Z"
         };
+
+        // Create a dedicated style tag for dynamic background styles
+        const bgStyleTag = document.createElement('style');
+        bgStyleTag.id = 'dynamic-background-styles';
+        document.head.appendChild(bgStyleTag);
 
         let app, auth, db, storage, userId;
 
@@ -596,17 +843,17 @@
         }
 
         // --- State ---
-        let activeTab = 'profile';
+        let activeTab = 'dashboard';
         let isFilesMenuOpen = false;
         let userProfile = { name: 'Intern', targetHours: 480, profilePicture: '' };
         let currentTheme = 'white';
         let currentMonth = 3;
         const year = 2026;
         let selectedDate = null;
-        
-        // --- Sidebar State ---
-        window.isSidebarOpen = window.innerWidth >= 768; 
-        window.previousWidth = window.innerWidth;
+        let localProfilePreview = null;
+        let selectedProfileFile = null;
+        let localBackgroundPreviews = { nav: null, page: null };
+        let isUploadingProfilePic = false;
 
         // Arrays to hold your data
         let logs = [];
@@ -615,10 +862,20 @@
             ojt: { folders: [], items: [] },
             company: { folders: [], items: [] }
         };
+        let themeBackgrounds = {
+            nav: { url: '', opacity: 1, blur: 0 },
+            page: { url: '', opacity: 1, blur: 0 }
+        };
 
         let logFormTasks = [{ id: Date.now(), startTime: '', endTime: '', task: '', description: '' }];
         let editingLogId = null;
         let linkFormActive = { category: '', folderId: '' };
+        let deleteFolderConfirm = { category: '', folderId: '' };
+
+        // Profile change tracking
+        let profileHasChanges = false;
+        let originalProfile = { name: '', targetHours: 0, profilePicture: '' };
+        let pendingTabSwitch = null;
 
         // --- Auth Functions ---
         window.handleLogin = async () => {
@@ -713,10 +970,11 @@
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('app-container').classList.remove('hidden');
                     document.getElementById('app-container').classList.add('flex');
-                    applySidebarState();
                     loadData().then(() => {
                         loadingOverlay.style.opacity = '0';
                         setTimeout(() => loadingOverlay.classList.add('hidden'), 500);
+                        // Show welcome message
+                        showWelcomeOverlay(userProfile.name);
                     });
                 } else {
                     userId = null;
@@ -735,6 +993,26 @@
         }
 
         // --- Cloud Storage Functions ---
+        function dataURLToBlob(dataURL) {
+            try {
+                const arr = dataURL.split(',');
+                if (arr.length < 2) throw new Error('Invalid data URL');
+                const mimeMatch = arr[0].match(/:(.*?);/);
+                if (!mimeMatch) throw new Error('Invalid MIME type');
+                const mime = mimeMatch[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new Blob([u8arr], { type: mime });
+            } catch (error) {
+                console.error('Error converting data URL to blob:', error);
+                throw error;
+            }
+        }
+
         async function loadData() {
             if (!userId) return;
             try {
@@ -747,9 +1025,32 @@
                     currentTheme = data.theme || 'white';
                     logs = data.logs || [];
                     todos = data.todos || [];
+                    
                     fileSystem = data.fileSystem || { ojt: { folders: [], items: [] }, company: { folders: [], items: [] } };
+                    const loadedBackgrounds = data.themeBackgrounds || {};
+                    themeBackgrounds = {
+                        nav: {
+                            url: typeof loadedBackgrounds.nav === 'string' ? loadedBackgrounds.nav : (loadedBackgrounds.nav?.url || ''),
+                            opacity: loadedBackgrounds.nav?.opacity ?? 1,
+                            blur: loadedBackgrounds.nav?.blur ?? 0,
+                        },
+                        page: {
+                            url: typeof loadedBackgrounds.page === 'string' ? loadedBackgrounds.page : (loadedBackgrounds.page?.url || ''),
+                            opacity: loadedBackgrounds.page?.opacity ?? 1,
+                            blur: loadedBackgrounds.page?.blur ?? 0,
+                        }
+                    };
+                    if (!fileSystem.ojt) fileSystem.ojt = { folders: [], items: [] };
+                    if (!fileSystem.ojt.folders) fileSystem.ojt.folders = [];
+                    if (!fileSystem.ojt.items) fileSystem.ojt.items = [];
+                    if (!fileSystem.company) fileSystem.company = { folders: [], items: [] };
+                    if (!fileSystem.company.folders) fileSystem.company.folders = [];
+                    if (!fileSystem.company.items) fileSystem.company.items = [];
                 }
+                applyTheme();
                 updateUI();
+                // Ensure the correct tab is active
+                switchTab(activeTab);
             } catch (e) {
                 console.error("Error loading data:", e);
             }
@@ -759,63 +1060,27 @@
             if (!userId) return;
             try {
                 await setDoc(doc(db, "users", userId), {
+                    name: userProfile.name,
+                    targetHours: userProfile.targetHours,
+                    profilePicture: userProfile.profilePicture,
                     profile: userProfile,
                     theme: currentTheme,
+                    themeBackgrounds,
                     logs,
                     todos,
                     fileSystem
-                });
+                }, { merge: true });
             } catch (e) {
                 console.error("Error saving data:", e);
             }
         }
 
-        // --- Sidebar Logic ---
-        window.applySidebarState = () => {
-            const sidebar = document.getElementById('sidebar');
-            const openBtn = document.getElementById('open-sidebar-btn');
-            const overlay = document.getElementById('mobile-overlay');
-            
-            if (window.isSidebarOpen) {
-                sidebar.style.transform = 'translateX(0)';
-                sidebar.style.marginLeft = '0';
-                openBtn.style.opacity = '0';
-                openBtn.style.pointerEvents = 'none';
-                openBtn.style.transform = 'scale(0.9)';
-                
-                if (window.innerWidth < 768 && overlay) {
-                    overlay.style.opacity = '1';
-                    overlay.style.pointerEvents = 'auto';
-                }
-            } else {
-                sidebar.style.transform = 'translateX(-100%)';
-                sidebar.style.marginLeft = window.innerWidth >= 768 ? '-16rem' : '0';
-                openBtn.style.opacity = '1';
-                openBtn.style.pointerEvents = 'auto';
-                openBtn.style.transform = 'scale(1)';
-                
-                if (overlay) {
-                    overlay.style.opacity = '0';
-                    overlay.style.pointerEvents = 'none';
-                }
-            }
+        // --- Mobile Menu Logic ---
+        window.toggleMobileMenu = () => {
+            const mobileMenu = document.getElementById('mobile-nav-menu');
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('flex');
         };
-
-        window.toggleSidebar = () => {
-            window.isSidebarOpen = !window.isSidebarOpen;
-            window.applySidebarState();
-        };
-
-        window.addEventListener('resize', () => {
-            if(window.innerWidth >= 768 && window.previousWidth < 768) {
-                window.isSidebarOpen = true;
-                window.applySidebarState();
-            } else if (window.innerWidth < 768 && window.previousWidth >= 768) {
-                window.isSidebarOpen = false;
-                window.applySidebarState();
-            }
-            window.previousWidth = window.innerWidth;
-        });
 
         // --- Core Functions ---
         function calculateDuration(start, end) {
@@ -834,7 +1099,7 @@
         // --- Render Functions ---
         function updateUI() {
             if (!userId) return; 
-            renderSidebar();
+            renderTopbar();
             renderDashboard();
             renderLogForm();
             renderLogHistory();
@@ -846,40 +1111,44 @@
             lucide.createIcons(); 
         }
 
-        function renderSidebar() {
-            const nav = document.getElementById('nav-menu');
-            const btnClass = (id) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
-            const subBtnClass = (id) => `w-full text-left px-4 py-2 rounded-lg transition-all font-medium text-sm whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+        function renderTopbar() {
+            const desktopNav = document.getElementById('nav-menu');
+            const mobileNav = document.getElementById('mobile-nav-menu');
             
-            nav.innerHTML = `
-                <!-- Profile Section -->
-                <div class="mb-6 p-4 bg-slate-800 rounded-xl">
-                    <div class="flex items-center gap-3 mb-2">
-                        <img id="sidebar-profile-picture" src="${userProfile.profilePicture || 'https://via.placeholder.com/40x40/6366f1/ffffff?text=P'}" alt="Profile" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-400">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-white font-bold text-sm truncate">${userProfile.name}</p>
-                            <p class="text-slate-400 text-xs">${auth.currentUser?.email || ''}</p>
-                        </div>
+            const desktopBtnClass = (id) => `flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium text-sm whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            const mobileBtnClass = (id) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            const mobileSubBtnClass = (id) => `w-full text-left px-4 py-2 rounded-lg transition-all font-medium text-sm whitespace-nowrap ${activeTab === id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+            
+            const renderLinks = (btnClassFn, isMobile) => `
+                <button onclick="switchTab('dashboard')" class="${btnClassFn('dashboard')}"><i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i> Dashboard</button>
+                <button onclick="switchTab('logs')" class="${btnClassFn('logs')}"><i data-lucide="pen-tool" class="w-4 h-4 shrink-0"></i> Log Entry</button>
+                <button onclick="switchTab('todos')" class="${btnClassFn('todos')}"><i data-lucide="list-todo" class="w-4 h-4 shrink-0"></i> Task Board</button>
+                <button onclick="switchTab('files-ojt')" class="${btnClassFn('files-ojt')}" title="Open OJT requirements"><i data-lucide="folder" class="w-4 h-4 shrink-0"></i> OJT Files</button>
+                <button onclick="switchTab('files-company')" class="${btnClassFn('files-company')}" title="Open company files"><i data-lucide="folder" class="w-4 h-4 shrink-0"></i> Company Files</button>
+            `;
+
+            desktopNav.innerHTML = renderLinks(desktopBtnClass, false);
+            mobileNav.innerHTML = `
+                <div class="mb-2 p-3 bg-slate-800 rounded-xl flex items-center gap-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white font-bold text-sm truncate">${userProfile.name}</p>
+                        <p class="text-slate-400 text-xs">${auth.currentUser?.email || ''}</p>
                     </div>
                 </div>
-                
-                <button onclick="switchTab('profile')" class="${btnClass('profile')}"><i data-lucide="user" class="w-5 h-5 shrink-0"></i> Profile</button>
-                <button onclick="switchTab('dashboard')" class="${btnClass('dashboard')}"><i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i> Dashboard</button>
-                <button onclick="switchTab('logs')" class="${btnClass('logs')}"><i data-lucide="pen-tool" class="w-5 h-5 shrink-0"></i> Log Entry</button>
-                <button onclick="switchTab('todos')" class="${btnClass('todos')}"><i data-lucide="list-todo" class="w-5 h-5 shrink-0"></i> Task Board</button>
-                <div>
-                    <button onclick="toggleFilesMenu()" class="${activeTab.startsWith('files') ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'} w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium whitespace-nowrap">
-                        <div class="flex items-center gap-3"><i data-lucide="folder" class="w-5 h-5 shrink-0"></i> Files</div>
-                        <i data-lucide="${isFilesMenuOpen ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4 shrink-0"></i>
+                ${renderLinks(mobileBtnClass, true)}
+                <div class="border-t border-slate-800 mt-2 pt-2">
+                    <button onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-red-400 hover:bg-red-500/10 hover:text-red-500">
+                        <i data-lucide="log-out" class="w-4 h-4 shrink-0"></i> Logout
                     </button>
-                    ${isFilesMenuOpen ? `
-                        <div class="ml-8 mt-2 space-y-1">
-                            <button onclick="switchTab('files-ojt')" class="${subBtnClass('files-ojt')}">OJT Requirements</button>
-                            <button onclick="switchTab('files-company')" class="${subBtnClass('files-company')}">Company Files</button>
-                        </div>
-                    ` : ''}
                 </div>
             `;
+            
+            // Update the topbar profile picture immediately
+            const topbarProfilePic = document.getElementById('topbar-profile-picture');
+            const defaultTopbarIcon = userProfile.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff` : "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e";
+            if (topbarProfilePic) {
+                topbarProfilePic.src = localProfilePreview || userProfile.profilePicture || defaultTopbarIcon;
+            }
         }
 
         function renderDashboard() {
@@ -899,6 +1168,9 @@
             const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
             const firstDay = new Date(year, currentMonth, 1).getDay();
             
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
             let calHtml = '';
             for(let i=0; i<firstDay; i++) calHtml += `<div class="aspect-square"></div>`;
             
@@ -907,9 +1179,17 @@
                 const hasLog = logs.some(l => l.date === dateStr);
                 const hasDeadline = todos.some(t => t.deadline === dateStr && !t.done);
                 const isSelected = selectedDate === dateStr;
+                const isToday = dateStr === todayStr;
+
+                let btnClasses = 'bg-slate-50 hover:border-indigo-200 text-slate-700 font-medium border-transparent';
+                if (isSelected) {
+                    btnClasses = 'bg-indigo-600 text-white font-bold shadow-md border-transparent';
+                } else if (isToday) {
+                    btnClasses = 'bg-indigo-50 text-indigo-600 font-bold shadow-sm border-current ring-1 ring-current';
+                }
 
                 calHtml += `
-                    <button onclick="selectDate('${dateStr}')" class="aspect-square flex flex-col items-center justify-center rounded-xl text-sm transition-all relative border border-transparent ${isSelected ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-50 hover:border-indigo-200 text-slate-700 font-medium'}">
+                    <button onclick="selectDate('${dateStr}')" class="aspect-square flex flex-col items-center justify-center rounded-xl text-sm transition-all relative border ${btnClasses}">
                         ${i}
                         <div class="flex gap-1 absolute bottom-2">
                             ${hasLog ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-indigo-200' : 'bg-indigo-500'}"></span>` : ''}
@@ -1057,9 +1337,40 @@
             }
         }
 
+        function folderColorClass(color) {
+            switch(color) {
+                case 'green': return 'bg-green-100 text-green-700';
+                case 'orange': return 'bg-orange-100 text-orange-700';
+                case 'rose': return 'bg-rose-100 text-rose-700';
+                case 'sky': return 'bg-sky-100 text-sky-700';
+                default: return 'bg-indigo-100 text-indigo-700';
+            }
+        }
+
+        window.setFolderColor = (category, color) => {
+            const colorInput = document.getElementById(`new-folder-color-${category}`);
+            const group = document.getElementById(`folder-color-options-${category}`);
+            if (colorInput) colorInput.value = color;
+            if (!group) return;
+            group.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-indigo-500', 'scale-105');
+                btn.classList.add('hover:scale-110');
+            });
+            const selected = group.querySelector(`button[data-color="${color}"]`);
+            if (selected) {
+                selected.classList.add('ring-2', 'ring-indigo-500', 'scale-105');
+                selected.classList.remove('hover:scale-110');
+            }
+        };
+
         function renderFiles(category) {
             const container = document.getElementById(`files-${category}-content`);
+            if (!fileSystem[category]) fileSystem[category] = { folders: [], items: [] };
+            if (!fileSystem[category].folders) fileSystem[category].folders = [];
+            if (!fileSystem[category].items) fileSystem[category].items = [];
             const data = fileSystem[category];
+
+            let html = '';
 
             if(data.folders.length === 0) {
                 container.innerHTML = `
@@ -1071,14 +1382,26 @@
                 return;
             }
 
-            container.innerHTML = data.folders.map(folder => `
+            container.innerHTML = html + data.folders.map(folder => `
                 <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <div class="bg-slate-100 px-4 py-3 flex justify-between items-center border-b border-slate-200">
-                        <h3 class="font-bold text-slate-700 flex items-center gap-2"><i data-lucide="folder" class="w-4 h-4 text-indigo-500"></i> ${folder.name}</h3>
+                    <div class="bg-slate-100 px-4 py-3 flex flex-col md:flex-row md:justify-between md:items-center gap-3 border-b border-slate-200">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${folderColorClass(folder.color)}">
+                                <i data-lucide="folder" class="w-4 h-4"></i>
+                                ${folder.name}
+                            </span>
+                        </div>
                         <div class="flex gap-2">
                             <button onclick="showLinkForm('${category}', '${folder.id}')" class="text-xs bg-white border border-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 flex items-center gap-1 font-semibold shadow-sm"><i data-lucide="link" class="w-3 h-3"></i> Link</button>
-                            <button onclick="addFile('${category}', '${folder.id}')" class="text-xs bg-white border border-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 flex items-center gap-1 font-semibold shadow-sm"><i data-lucide="upload" class="w-3 h-3"></i> File</button>
-                            <button onclick="deleteFolder('${category}', '${folder.id}')" class="text-slate-400 hover:text-red-500 p-1.5 ml-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            ${deleteFolderConfirm.category === category && deleteFolderConfirm.folderId === folder.id ? `
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold text-rose-600">Delete this folder?</span>
+                                    <button onclick="deleteFolder('${category}', '${folder.id}')" class="text-xs bg-rose-600 text-white px-2.5 py-1.5 rounded-lg hover:bg-rose-700">Confirm</button>
+                                    <button onclick="cancelDeleteFolder()" class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-200">Cancel</button>
+                                </div>
+                            ` : `
+                                <button onclick="deleteFolder('${category}', '${folder.id}')" class="text-slate-400 hover:text-red-500 p-1.5 ml-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            `}
                         </div>
                     </div>
                     <div class="p-3 space-y-2">
@@ -1093,9 +1416,15 @@
                             </form>
                         ` : ''}
                         
-                        ${data.items.filter(i => i.folderId === folder.id).length === 0 && !(linkFormActive.category === category && linkFormActive.folderId === folder.id) 
-                            ? `<p class="text-sm text-slate-400 text-center py-4">This folder is empty.</p>` 
-                            : data.items.filter(i => i.folderId === folder.id).map(item => `
+                        ${(() => {
+                            const folderItems = data.items.filter(i => i.folderId === folder.id);
+                            const hasContent = folderItems.length > 0;
+                            const isFormActive = linkFormActive.category === category && linkFormActive.folderId === folder.id;
+                            if (!hasContent && !isFormActive) {
+                                return `<p class="text-sm text-slate-400 text-center py-4">This folder is empty.</p>`;
+                            }
+                            let content = '';
+                            content += folderItems.map(item => `
                                 <div class="flex justify-between items-center p-3 bg-white border border-slate-100 rounded-lg group hover:border-indigo-300 shadow-sm">
                                     <div class="flex items-center gap-4 w-full pr-4">
                                         ${item.type === 'link' ? `<div class="p-2 bg-indigo-50 rounded-lg text-indigo-500 shrink-0"><i data-lucide="external-link" class="w-5 h-5"></i></div>` : `<i data-lucide="file-text" class="w-6 h-6 text-slate-400 shrink-0 ml-1"></i>`}
@@ -1107,18 +1436,58 @@
                                     </div>
                                     <button onclick="deleteItem('${category}', ${item.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 p-2 shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                 </div>
-                            `).join('')}
+                            `).join('');
+                            return content;
+                        })()}
                     </div>
                 </div>
             `).join('');
+            lucide.createIcons();
         }
+
+        window.updateBackgroundEffect = (target, effect, value, shouldSave = false) => {
+            if (!themeBackgrounds[target]) return;
+            
+            const numericValue = parseFloat(value);
+            if (isNaN(numericValue)) return;
+
+            themeBackgrounds[target][effect] = numericValue;
+
+            // Update the UI immediately
+            applyTheme(); 
+
+            if (shouldSave) {
+                saveData();
+            }
+        };
 
         // --- Attach Functions to Window ---
         window.switchTab = (tabId) => {
+            if (profileHasChanges && activeTab === 'profile') {
+                showProfileSaveConfirmation(tabId);
+                return;
+            }
             activeTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            if (window.innerWidth < 768 && window.isSidebarOpen) window.toggleSidebar();
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            } else {
+                console.warn('switchTab: target tab not found', tabId);
+            }
+
+            // Keep file dropdown open when a file tab is active
+            if (tabId.startsWith('files')) {
+                isFilesMenuOpen = true;
+            }
+
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-nav-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('flex');
+            }
+
             updateUI();
         };
 
@@ -1221,21 +1590,45 @@
         window.deleteTodo = (id) => { todos = todos.filter(t => t.id !== id); saveData(); updateUI(); };
 
         window.addFolder = (category) => {
-            const name = prompt("Enter new folder name:");
-            if(name && name.trim()) { fileSystem[category].folders.push({ id: 'f-' + Date.now(), name: name.trim() }); saveData(); updateUI(); }
+            const nameInput = document.getElementById(`new-folder-name-${category}`);
+            const colorInput = document.getElementById(`new-folder-color-${category}`);
+            const name = nameInput?.value?.trim();
+            const color = colorInput?.value || 'indigo';
+
+            if(!name) {
+                showNotification('Please enter a folder name.', 'error');
+                return;
+            }
+
+            fileSystem[category].folders.push({ id: 'f-' + Date.now(), name, color });
+            nameInput.value = '';
+            colorInput.value = 'indigo';
+            saveData();
+            updateUI();
+            showNotification('Folder created successfully!');
         };
 
         window.deleteFolder = (category, folderId) => {
-            if(confirm("Delete this folder and all contents?")) {
+            if (deleteFolderConfirm.category === category && deleteFolderConfirm.folderId === folderId) {
                 fileSystem[category].folders = fileSystem[category].folders.filter(f => f.id !== folderId);
                 fileSystem[category].items = fileSystem[category].items.filter(i => i.folderId !== folderId);
+                deleteFolderConfirm = { category: '', folderId: '' };
                 saveData(); updateUI();
+                showNotification('Folder deleted successfully!');
+            } else {
+                deleteFolderConfirm = { category, folderId };
+                updateUI();
             }
+        };
+
+        window.cancelDeleteFolder = () => {
+            deleteFolderConfirm = { category: '', folderId: '' };
+            updateUI();
         };
 
         window.addFile = (category, folderId) => {
             const name = prompt("Enter mock file name to upload:");
-            if(name && name.trim()) { fileSystem[category].items.push({ id: Date.now(), folderId, type: 'file', name: name.trim(), date: new Date().toISOString().split('T')[0] }); saveData(); updateUI(); }
+            if(name && name.trim()) { fileSystem[category].items.push({ id: Date.now(), folderId, type: 'file', name: name.trim(), date: new Date().toISOString().split('T')[0] }); saveData(); updateUI(); showNotification('File added successfully!'); }
         };
 
         window.showLinkForm = (category, folderId) => { linkFormActive = { category, folderId }; updateUI(); };
@@ -1259,19 +1652,36 @@
             document.getElementById('profile-target-hours').value = userProfile.targetHours;
             document.getElementById('profile-email').value = auth.currentUser?.email || '';
             
+            // Set original values for change tracking
+            originalProfile = { name: userProfile.name, targetHours: userProfile.targetHours, profilePicture: userProfile.profilePicture };
+            profileHasChanges = false;
+            document.getElementById('profile-revert-btn').classList.add('hidden');
+            
+            // Add event listeners for change detection (remove existing first to avoid duplicates)
+            const nameInput = document.getElementById('profile-name');
+            const hoursInput = document.getElementById('profile-target-hours');
+            nameInput.removeEventListener('input', checkProfileChanges);
+            hoursInput.removeEventListener('input', checkProfileChanges);
+            nameInput.addEventListener('input', checkProfileChanges);
+            hoursInput.addEventListener('input', checkProfileChanges);
+            
             // Update profile picture
             const profilePic = document.getElementById('profile-picture');
-            profilePic.src = userProfile.profilePicture || 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile';
+            const defaultProfileIcon = userProfile.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff&size=128` : "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e";
+            profilePic.src = localProfilePreview || userProfile.profilePicture || defaultProfileIcon;
             profilePic.onerror = () => {
-                profilePic.src = 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile';
+                console.warn('Profile picture failed to load, using default icon');
+                profilePic.src = defaultProfileIcon;
             };
             
-            // Update sidebar profile picture and name
-            const sidebarProfilePic = document.getElementById('sidebar-profile-picture');
-            if (sidebarProfilePic) {
-                sidebarProfilePic.src = userProfile.profilePicture || 'https://via.placeholder.com/40x40/6366f1/ffffff?text=P';
-                sidebarProfilePic.onerror = () => {
-                    sidebarProfilePic.src = 'https://via.placeholder.com/40x40/6366f1/ffffff?text=P';
+            // Update topbar profile picture
+            const topbarProfilePic = document.getElementById('topbar-profile-picture');
+            const defaultTopbarIcon = userProfile.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff` : "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e";
+            if (topbarProfilePic) {
+                topbarProfilePic.src = localProfilePreview || userProfile.profilePicture || defaultTopbarIcon;
+                topbarProfilePic.onerror = () => {
+                    console.warn('Topbar profile picture failed to load, using default icon');
+                    topbarProfilePic.src = defaultTopbarIcon;
                 };
             }
             
@@ -1289,97 +1699,497 @@
             if(name.trim() && targetHours > 0) {
                 userProfile.name = name.trim();
                 userProfile.targetHours = targetHours;
-                await setDoc(doc(db, 'users', userId), { profile: userProfile, theme: currentTheme }, { merge: true });
-                updateUI();
-                showNotification('Profile updated successfully!');
+                
+                if (localProfilePreview) {
+                    userProfile.profilePicture = localProfilePreview;
+                }
+                
+                try {
+                    // Use the main saveData function to ensure all data is preserved
+                    await saveData();
+                    localProfilePreview = null;
+                    selectedProfileFile = null;
+                    
+                    // Reset change tracking
+                    originalProfile = { name: userProfile.name, targetHours: userProfile.targetHours, profilePicture: userProfile.profilePicture };
+                    profileHasChanges = false;
+                    document.getElementById('profile-revert-btn').classList.add('hidden');
+                    updateUI();
+                    showNotification('Profile updated successfully!');
+                    return true;
+                } catch (error) {
+                    console.error('Error saving profile:', error);
+                    showNotification('Failed to save profile. Please try again.', 'error');
+                    return false;
+                }
             } else {
                 showNotification('Please enter valid information.', 'error');
+                return false;
             }
+        };
+
+        // Profile change tracking functions
+        function checkProfileChanges() {
+            const name = document.getElementById('profile-name').value;
+            const targetHours = parseInt(document.getElementById('profile-target-hours').value);
+            profileHasChanges = (name !== originalProfile.name || targetHours !== originalProfile.targetHours || localProfilePreview !== null);
+            
+            const revertBtn = document.getElementById('profile-revert-btn');
+            if (profileHasChanges) {
+                revertBtn.classList.remove('hidden');
+            } else {
+                revertBtn.classList.add('hidden');
+            }
+        }
+
+        window.revertProfileChanges = () => {
+            document.getElementById('profile-name').value = originalProfile.name;
+            document.getElementById('profile-target-hours').value = originalProfile.targetHours;
+            localProfilePreview = null;
+            selectedProfileFile = null;
+            document.getElementById('profile-picture').src = originalProfile.profilePicture || (userProfile.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff&size=128` : "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e");
+            const topbarPic = document.getElementById('topbar-profile-picture');
+            if (topbarPic) topbarPic.src = originalProfile.profilePicture || (userProfile.name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff` : "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3e%3c/circle cx='12' cy='7' r='4'%3e%3c/svg%3e");
+            profileHasChanges = false;
+            document.getElementById('profile-revert-btn').classList.add('hidden');
+        };
+
+        window.showProfileSaveConfirmation = (tabId) => {
+            pendingTabSwitch = tabId;
+            document.getElementById('profile-confirm-modal').classList.remove('hidden');
+            document.getElementById('profile-confirm-modal-content').classList.remove('scale-95', 'opacity-0');
+            document.getElementById('profile-confirm-modal-content').classList.add('scale-100', 'opacity-100');
+            lucide.createIcons();
+        };
+
+        window.closeProfileConfirmModal = () => {
+            document.getElementById('profile-confirm-modal').classList.add('hidden');
+            document.getElementById('profile-confirm-modal-content').classList.add('scale-95', 'opacity-0');
+            document.getElementById('profile-confirm-modal-content').classList.remove('scale-100', 'opacity-100');
+            pendingTabSwitch = null;
+        };
+
+        window.discardProfileChanges = () => {
+            profileHasChanges = false;
+            const targetTab = pendingTabSwitch;
+            closeProfileConfirmModal();
+            switchTab(targetTab);
+        };
+
+        window.saveProfileAndSwitch = async () => {
+            const targetTab = pendingTabSwitch;
+            const success = await saveProfile();
+            closeProfileConfirmModal();
+            if (success) {
+                switchTab(targetTab);
+            }
+        };
+
+        window.showResetThemeConfirmation = () => {
+            document.getElementById('theme-reset-confirm-modal').classList.remove('hidden');
+            document.getElementById('theme-reset-confirm-modal-content').classList.remove('scale-95', 'opacity-0');
+            document.getElementById('theme-reset-confirm-modal-content').classList.add('scale-100', 'opacity-100');
+            lucide.createIcons();
+        };
+
+        window.closeThemeResetConfirmModal = () => {
+            document.getElementById('theme-reset-confirm-modal').classList.add('hidden');
+            document.getElementById('theme-reset-confirm-modal-content').classList.add('scale-95', 'opacity-0');
+            document.getElementById('theme-reset-confirm-modal-content').classList.remove('scale-100', 'opacity-100');
+        };
+
+        window.confirmResetTheme = async () => {
+            // Reset color theme
+            currentTheme = 'white';
+
+            // Reset backgrounds
+            themeBackgrounds = {
+                nav: { url: '', opacity: 1, blur: 0 },
+                page: { url: '', opacity: 1, blur: 0 }
+            };
+
+            await saveData();
+            closeThemeResetConfirmModal();
+            applyTheme();
+            renderProfile(); // To update the theme selection buttons
+            showNotification('Theme settings have been reset to default.');
         };
 
         window.handleProfilePictureUpload = async (event) => {
             const file = event.target.files[0];
+            const inputElement = event.target;
             if (!file) return;
 
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 showNotification('Please select a valid image file.', 'error');
+                inputElement.value = '';
                 return;
             }
 
             // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showNotification('Image size must be less than 5MB.', 'error');
+                inputElement.value = '';
                 return;
             }
 
             try {
-                // Show loading state
-                const profilePic = document.getElementById('profile-picture');
-                profilePic.src = 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Uploading...';
+                // Resize image to ensure it fits within Firestore document limit
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 250;
+                        const MAX_HEIGHT = 250;
+                        let width = img.width;
+                        let height = img.height;
 
-                // Create storage reference
-                const storageRef = ref(storage, `profile-pictures/${userId}/${Date.now()}_${file.name}`);
-                
-                // Upload file
-                const snapshot = await uploadBytes(storageRef, file);
-                
-                // Get download URL
-                const downloadURL = await getDownloadURL(snapshot.ref);
-                
-                // Update profile
-                userProfile.profilePicture = downloadURL;
-                await setDoc(doc(db, 'users', userId), { profile: userProfile }, { merge: true });
-                
-                // Update UI
-                profilePic.src = downloadURL;
-                
-                // Update sidebar profile picture
-                const sidebarProfilePic = document.getElementById('sidebar-profile-picture');
-                if (sidebarProfilePic) {
-                    sidebarProfilePic.src = downloadURL;
-                }
-                
-                showNotification('Profile picture updated successfully!');
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Compress to JPEG to save space
+                        const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                        localProfilePreview = resizedBase64;
+                        selectedProfileFile = null;
+                        profileHasChanges = true;
+                        
+                        document.getElementById('profile-revert-btn').classList.remove('hidden');
+                        document.getElementById('profile-picture').src = localProfilePreview;
+                        const topbarPic = document.getElementById('topbar-profile-picture');
+                        if (topbarPic) topbarPic.src = localProfilePreview;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
                 
             } catch (error) {
-                console.error('Error uploading profile picture:', error);
-                showNotification('Failed to upload profile picture. Please try again.', 'error');
-                // Reset to current or default image
-                document.getElementById('profile-picture').src = userProfile.profilePicture || 'https://via.placeholder.com/120x120/6366f1/ffffff?text=Profile';
+                console.error('Error reading profile picture:', error);
+                showNotification('Failed to read image file.', 'error');
+            } finally {
+                // Clear the input so the same file can be selected again if needed
+                inputElement.value = '';
             }
         };
 
         function showNotification(message, type = 'success') {
+            const modal = document.getElementById('notification-modal');
+            const modalContent = document.getElementById('notification-modal-content');
+            const iconDiv = document.getElementById('notification-icon');
+            const title = document.getElementById('notification-title');
+            const messageEl = document.getElementById('notification-message');
+            
+            // Set content based on type
             if (type === 'error') {
-                alert('Error: ' + message);
+                title.textContent = 'Error!';
+                messageEl.textContent = message;
+                iconDiv.innerHTML = '<i data-lucide="x-circle" class="w-8 h-8 text-red-500"></i>';
+                iconDiv.className = 'mx-auto mb-4 w-12 h-12 rounded-full bg-red-50 flex items-center justify-center';
             } else {
-                alert('Success: ' + message);
+                title.textContent = 'Success!';
+                messageEl.textContent = message;
+                iconDiv.innerHTML = '<i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>';
+                iconDiv.className = 'mx-auto mb-4 w-12 h-12 rounded-full bg-green-50 flex items-center justify-center';
+            }
+            
+            // Re-render icons
+            lucide.createIcons();
+            
+            // Show modal with animation
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            // Auto-close success notifications after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    closeNotificationModal();
+                }, 3000);
             }
         }
 
+        window.closeNotificationModal = () => {
+            const modal = document.getElementById('notification-modal');
+            const modalContent = document.getElementById('notification-modal-content');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        function showWelcomeOverlay(name) {
+            const overlay = document.getElementById('welcome-overlay');
+            const messageEl = document.getElementById('welcome-message');
+            const textDiv = overlay.querySelector('.text-center');
+            
+            messageEl.textContent = `Welcome, ${name}!`;
+            
+            // Adjust text color based on theme
+            if (currentTheme === 'dark') {
+                textDiv.classList.remove('text-slate-900');
+                textDiv.classList.add('text-white');
+            } else {
+                textDiv.classList.remove('text-white');
+                textDiv.classList.add('text-slate-900');
+            }
+            
+            // Fade in
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+            
+            // Re-render icons
+            lucide.createIcons();
+            
+            // Auto fade out after 3 seconds
+            setTimeout(() => {
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('pointer-events-none');
+                }, 1000);
+            }, 3000);
+        }
+
+        window.testProfilePictureUpload = async () => {
+            try {
+                // Test Firebase Storage access
+                const testRef = ref(storage, `test/${userId}/test.txt`);
+                console.log('Firebase Storage test reference created:', testRef);
+                
+                // Test Firestore access
+                const testDoc = await getDoc(doc(db, 'users', userId));
+                console.log('Firestore access test:', testDoc.exists() ? 'Success' : 'Document not found');
+                
+                showNotification('Firebase connection test completed. Check console for details.', 'success');
+            } catch (error) {
+                console.error('Firebase test failed:', error);
+                showNotification('Firebase connection test failed. Check console for details.', 'error');
+            }
+        };
+
         window.setTheme = async (theme) => {
+            const oldTheme = currentTheme;
             currentTheme = theme;
-            await setDoc(doc(db, 'users', userId), { theme: currentTheme }, { merge: true });
-            applyTheme();
-            renderProfile();
-            showNotification(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`);
+            try {
+                await setDoc(doc(db, 'users', userId), { theme: currentTheme }, { merge: true });
+                applyTheme();
+                renderProfile();
+                showNotification(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`);
+            } catch (error) {
+                console.error('Failed to save theme:', error);
+                currentTheme = oldTheme;
+                applyTheme();
+                showNotification('Failed to save theme. Please try again.', 'error');
+            }
         };
 
         function applyTheme() {
-            document.body.className = `theme-${currentTheme}`;
-            // Update sidebar background
-            const sidebar = document.getElementById('sidebar');
-            if (currentTheme === 'dark') {
-                sidebar.classList.add('bg-slate-950');
-                sidebar.classList.remove('bg-slate-950'); // This will be overridden by theme classes
+            // Correctly manage theme class
+            const themeClasses = Array.from(document.body.classList).filter(c => c.startsWith('theme-'));
+            document.body.classList.remove(...themeClasses);
+            document.body.classList.add(`theme-${currentTheme}`);
+
+            let styles = '';
+            // Page background
+            const pageUrl = localBackgroundPreviews.page || themeBackgrounds.page.url;
+            if (pageUrl) {
+                styles += `
+                    body::before {
+                        background-image: url('${pageUrl}');
+                        opacity: ${themeBackgrounds.page.opacity};
+                        filter: blur(${themeBackgrounds.page.blur}px);
+                    }
+                `;
+            } else {
+                styles += `body::before { background-image: none; }`;
             }
-            // The theme classes will handle the rest
+
+            // Nav background
+            const navUrl = localBackgroundPreviews.nav || themeBackgrounds.nav.url;
+            if (navUrl) {
+                styles += `
+                    #topbar { background-color: transparent !important; }
+                    #topbar::before {
+                        background-image: url('${navUrl}');
+                        opacity: ${themeBackgrounds.nav.opacity};
+                        filter: blur(${themeBackgrounds.nav.blur}px);
+                    }
+                `;
+            } else {
+                styles += `#topbar::before { background-image: none; }`;
+            }
+            bgStyleTag.innerHTML = styles;
+
+            updateThemeControls();
+            updateThemePreviews();
+        }
+
+        function updateThemeControls() {
+            // Nav
+            const navOpacitySlider = document.getElementById('nav-bg-opacity');
+            const navOpacityValue = document.getElementById('nav-opacity-value');
+            const navBlurSlider = document.getElementById('nav-bg-blur');
+            const navBlurValue = document.getElementById('nav-blur-value');
+            if (navOpacitySlider) navOpacitySlider.value = themeBackgrounds.nav.opacity;
+            if (navOpacityValue) navOpacityValue.textContent = `${Math.round(themeBackgrounds.nav.opacity * 100)}%`;
+            if (navBlurSlider) navBlurSlider.value = themeBackgrounds.nav.blur;
+            if (navBlurValue) navBlurValue.textContent = `${themeBackgrounds.nav.blur}px`;
+
+            // Page
+            const pageOpacitySlider = document.getElementById('page-bg-opacity');
+            const pageOpacityValue = document.getElementById('page-opacity-value');
+            const pageBlurSlider = document.getElementById('page-bg-blur');
+            const pageBlurValue = document.getElementById('page-blur-value');
+            if (pageOpacitySlider) pageOpacitySlider.value = themeBackgrounds.page.opacity;
+            if (pageOpacityValue) pageOpacityValue.textContent = `${Math.round(themeBackgrounds.page.opacity * 100)}%`;
+            if (pageBlurSlider) pageBlurSlider.value = themeBackgrounds.page.blur;
+            if (pageBlurValue) pageBlurValue.textContent = `${themeBackgrounds.page.blur}px`;
+        }
+
+        function updateThemePreviews() {
+            const navPreview = document.getElementById('nav-bg-preview');
+            const pagePreview = document.getElementById('page-bg-preview');
+            
+            const navUrl = localBackgroundPreviews.nav || themeBackgrounds.nav.url;
+            if (navPreview) {
+                if (navUrl) {
+                    navPreview.style.backgroundImage = `url('${navUrl}')`;
+                    navPreview.innerHTML = '';
+                } else {
+                    navPreview.style.backgroundImage = '';
+                    navPreview.innerHTML = 'No image selected';
+                }
+            }
+
+            const pageUrl = localBackgroundPreviews.page || themeBackgrounds.page.url;
+            if (pagePreview) {
+                if (pageUrl) {
+                    pagePreview.style.backgroundImage = `url('${pageUrl}')`;
+                    pagePreview.innerHTML = '';
+                } else {
+                    pagePreview.style.backgroundImage = '';
+                    pagePreview.innerHTML = 'No image selected';
+                }
+            }
+        }
+
+        window.handleBackgroundUpload = async (event, target) => {
+            const file = event.target.files[0];
+            const input = event.target;
+            if (!file) return;
+            if (!userId) {
+                showNotification('Please login before uploading a background image.', 'error');
+                input.value = '';
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showNotification('Image size must be less than 10MB.', 'error');
+                input.value = '';
+                return;
+            }
+
+            // Revoke old preview URL if it exists to prevent memory leaks
+            if (localBackgroundPreviews[target]) {
+                URL.revokeObjectURL(localBackgroundPreviews[target]);
+            }
+
+            const localURL = URL.createObjectURL(file);
+            localBackgroundPreviews[target] = localURL;
+            applyTheme(); // Apply local image for instant preview
+
+            try {
+                const storagePath = `backgrounds/${userId}/${target}/${Date.now()}_${file.name}`;
+                const backgroundRef = ref(storage, storagePath);
+                const snapshot = await uploadBytes(backgroundRef, file);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+
+                themeBackgrounds[target].url = downloadURL; // Update persistent state
+                
+                // The preview is now handled by the permanent URL, so we can clear and revoke the local one
+                if (localBackgroundPreviews[target]) {
+                    URL.revokeObjectURL(localBackgroundPreviews[target]);
+                    localBackgroundPreviews[target] = null;
+                }
+
+                await saveData();
+                applyTheme(); // Re-render with permanent URL
+                showNotification('Background image updated successfully!');
+            } catch (error) {
+                console.error('Background upload failed:', error);
+                // Clear the failed preview
+                if (localBackgroundPreviews[target]) {
+                    URL.revokeObjectURL(localBackgroundPreviews[target]);
+                    localBackgroundPreviews[target] = null;
+                }
+                applyTheme(); // Revert background on failure
+                showNotification('Failed to upload background image.', 'error');
+            }
+            input.value = '';
+        };
+
+        window.clearThemeBackground = async (target) => {
+            themeBackgrounds[target].url = '';
+            themeBackgrounds[target].opacity = 1;
+            themeBackgrounds[target].blur = 0;
+            await saveData();
+            applyTheme();
+            showNotification('Background image removed.');
+        };
+
+        const bibleVerses = [
+            { text: "I can do all things through Christ who strengthens me.", reference: "Philippians 4:13" },
+            { text: "For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope.", reference: "Jeremiah 29:11" },
+            { text: "Trust in the LORD with all your heart, and do not lean on your own understanding.", reference: "Proverbs 3:5" },
+            { text: "Be strong and courageous. Do not be frightened, and do not be dismayed, for the LORD your God is with you wherever you go.", reference: "Joshua 1:9" },
+            { text: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.", reference: "Romans 8:28" },
+            { text: "The LORD is my shepherd; I shall not want.", reference: "Psalm 23:1" },
+            { text: "Cast all your anxiety on him because he cares for you.", reference: "1 Peter 5:7" },
+            { text: "But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control.", reference: "Galatians 5:22-23" },
+            { text: "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.", reference: "Romans 12:2" },
+            { text: "Let all that you do be done in love.", reference: "1 Corinthians 16:14" },
+            { text: "Commit your work to the LORD, and your plans will be established.", reference: "Proverbs 16:3" },
+            { text: "Whatever you do, work heartily, as for the Lord and not for men.", reference: "Colossians 3:23" },
+            { text: "Let your light shine before others, that they may see your good deeds and glorify your Father in heaven.", reference: "Matthew 5:16" },
+            { text: "Therefore do not worry about tomorrow, for tomorrow will worry about itself. Each day has enough trouble of its own.", reference: "Matthew 6:34" },
+            { text: "The steadfast love of the LORD never ceases; his mercies never come to an end; they are new every morning.", reference: "Lamentations 3:22-23" }
+        ];
+
+        function setBibleVerse() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const verse = bibleVerses[dayOfYear % bibleVerses.length];
+            
+            const textEl = document.getElementById('votd-text');
+            const refEl = document.getElementById('votd-reference');
+            if(textEl && refEl) {
+                textEl.innerText = `"${verse.text}"`;
+                refEl.innerText = `- ${verse.reference}`;
+            }
         }
 
         // Initial setup
+        setBibleVerse();
         lucide.createIcons();
     </script>
 </body>
 </html>
-
